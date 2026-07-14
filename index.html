@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edurino &#8212; Amazon DE Tool</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #F7F6F3; --surface: #FFFFFF; --surface2: #F0EEE9; --border: #E2DED6;
@@ -15,20 +15,37 @@
     --sans: 'Inter', sans-serif; --radius: 8px;
   }
   body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+
+  /* HEADER */
   header { background: var(--text); color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
   .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; }
   .logo-dot { width: 28px; height: 28px; background: #E8502A; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; }
   .header-sub { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; }
+
+  /* TABS */
+  .tab-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; }
+  .tab-btn { padding: 13px 20px; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; font-family: var(--sans); }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: #E8502A; border-bottom-color: #E8502A; font-weight: 600; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* LAYOUT */
   .container { max-width: 1600px; margin: 0 auto; padding: 28px 24px; }
-  #mainGrid { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
-  #mainGrid.split { grid-template-columns: 1fr 440px; }
+
+  /* PANEL */
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
   .panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mid); }
   .panel-body { padding: 16px; }
+  .pill-count { background: #E8502A; color: #fff; font-size: 10px; font-weight: 700; border-radius: 10px; padding: 1px 6px; margin-left: 6px; }
+
+  /* CLEAN TAB — TABLE */
+  #mainGrid { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
+  #mainGrid.split { grid-template-columns: 1fr 440px; }
   .search-box { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: var(--sans); font-size: 13px; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
   .search-box:focus { border-color: #E8502A; }
-  .product-table-wrap { max-height: calc(100vh - 215px); overflow-y: auto; }
+  .product-table-wrap { max-height: calc(100vh - 260px); overflow-y: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   thead th { position: sticky; top: 0; background: var(--surface2); padding: 8px 10px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-soft); border-bottom: 1px solid var(--border); z-index: 1; white-space: nowrap; }
   tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
@@ -37,135 +54,133 @@
   td { padding: 8px 10px; vertical-align: top; }
   .td-sku { font-family: monospace; font-size: 11px; font-weight: 600; color: #E8502A; white-space: nowrap; }
   .td-asin { font-family: monospace; font-size: 10px; color: var(--text-soft); white-space: nowrap; margin-top: 2px; }
-  .td-title { color: var(--text-mid); line-height: 1.4; font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .td-title.has-title { color: var(--text); }
-  .td-title.de-title { color: var(--text); font-weight: 500; }
+  .td-title { color: var(--text); line-height: 1.4; font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-title.empty { color: var(--text-soft); font-style: italic; }
   .td-split { font-size: 12px; line-height: 1.4; color: var(--text); white-space: normal; word-break: break-word; }
-  .td-split.t75 { min-width: 160px; max-width: 200px; }
-  .td-split.t125 { min-width: 200px; max-width: 260px; }
   .td-split.empty { color: var(--text-soft); font-style: italic; font-size: 11px; }
   .split-chars { font-family: monospace; font-size: 9px; margin-top: 3px; padding: 1px 5px; border-radius: 3px; display: inline-block; }
-  .split-chars.ok { background: #EBF7F2; color: #1D7A4E; }
+  .split-chars.ok   { background: #EBF7F2; color: #1D7A4E; }
   .split-chars.warn { background: #FDF7E8; color: #C47A00; }
   .split-chars.over { background: #FDECEA; color: #C0392B; }
-  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
   .status-dot.fetched { background: #1D7A4E; }
-  .status-dot.fetching { background: #C47A00; animation: pulse 1s infinite; }
-  .status-dot.error { background: #C0392B; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .status-dot.empty   { background: var(--border); }
+
+  /* WORKSPACE (right panel) */
   .right-col { display: flex; flex-direction: column; gap: 20px; }
-  .empty-state { text-align: center; padding: 64px 24px; color: var(--text-soft); }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
-  .empty-title { font-size: 15px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; }
   .label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-soft); margin-bottom: 5px; }
   .current-title-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-top: 6px; }
   .current-title-text { font-size: 13px; color: var(--text); line-height: 1.5; }
-  .title-chars { font-family: monospace; font-size: 10px; color: var(--text-soft); margin-top: 6px; }
-  .lang-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 6px; }
-  .lang-de { background: #EBF7F2; color: #1D7A4E; border: 1px solid rgba(29,122,78,0.2); }
-  .lang-en { background: #FDF7E8; color: #C47A00; border: 1px solid rgba(196,122,0,0.2); }
+  .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  /* BUTTONS */
   .btn { padding: 7px 13px; border-radius: var(--radius); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .btn-primary { background: #E8502A; color: #fff; }
+  .btn-primary   { background: #E8502A; color: #fff; }
   .btn-primary:hover { background: #d04420; }
   .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
   .btn-secondary { background: var(--surface2); color: var(--text-mid); border: 1px solid var(--border); }
   .btn-secondary:hover { background: var(--border); }
   .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  /* KEYWORDS */
   textarea.kw-input { width: 100%; height: 88px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: monospace; font-size: 12px; resize: vertical; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; line-height: 1.6; }
   textarea.kw-input:focus { border-color: #E8502A; }
   .kw-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; min-height: 26px; }
-  .kw-tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace; color: var(--text-mid); }
+  .kw-tag    { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace; color: var(--text-mid); }
   .kw-tag.p1 { background: #FBF0EC; border-color: rgba(232,80,42,0.25); color: #E8502A; }
   .kw-tag.p2 { background: #EBF7F2; border-color: rgba(29,122,78,0.2); color: #1D7A4E; }
   .kw-rank { font-size: 9px; margin-right: 3px; opacity: 0.55; }
+
+  /* RULES */
   .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .rule-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font-size: 12px; color: var(--text-mid); }
   .rule-item input[type=checkbox] { accent-color: #E8502A; width: 13px; height: 13px; cursor: pointer; flex-shrink: 0; }
+
+  /* OUTPUT */
   .output-block { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   .output-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mid); }
   .char-counter { font-family: monospace; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
-  .char-counter.ok { background: #EBF7F2; color: #1D7A4E; }
+  .char-counter.ok   { background: #EBF7F2; color: #1D7A4E; }
   .char-counter.warn { background: #FDF7E8; color: #C47A00; }
   .char-counter.over { background: #FDECEA; color: #C0392B; }
   .output-body { padding: 12px 14px; background: var(--surface); }
   .output-body textarea { width: 100%; border: none; outline: none; font-family: var(--sans); font-size: 14px; line-height: 1.6; color: var(--text); resize: none; background: transparent; }
   .output-foot { padding: 7px 14px; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .copy-btn { font-size: 11px; padding: 3px 9px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text-mid); font-family: var(--sans); transition: all 0.1s; }
-  .copy-btn:hover { border-color: #E8502A; color: #E8502A; }
+  .copy-btn:hover  { border-color: #E8502A; color: #E8502A; }
   .copy-btn.copied { border-color: #1D7A4E; color: #1D7A4E; background: #EBF7F2; }
   .kw-used-list { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 14px 12px; }
-  .kw-used { font-family: monospace; font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #FBF0EC; color: #E8502A; border: 1px solid rgba(232,80,42,0.2); }
+  .kw-used   { font-family: monospace; font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #FBF0EC; color: #E8502A; border: 1px solid rgba(232,80,42,0.2); }
   .kw-unused { font-family: monospace; font-size: 10px; padding: 2px 6px; border-radius: 3px; background: var(--surface2); color: var(--text-soft); text-decoration: line-through; border: 1px solid var(--border); }
-  .divider { height: 1px; background: var(--border); margin: 14px 0; }
-  .pill-count { background: #E8502A; color: #fff; font-size: 10px; font-weight: 700; border-radius: 10px; padding: 1px 6px; margin-left: 6px; }
-  .fetch-all-bar { display: flex; align-items: center; gap: 10px; padding: 9px 16px; background: #FDF7E8; border-bottom: 1px solid #f0d88a; font-size: 12px; color: #C47A00; }
-  .progress-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .progress-bar { height: 100%; background: #E8502A; border-radius: 2px; transition: width 0.3s; }
+
+  /* INFO / FETCH BARS */
   .info-bar { padding: 8px 16px; background: #EBF7F2; border-bottom: 1px solid rgba(29,122,78,0.15); font-size: 11px; color: #1D7A4E; display: flex; align-items: center; gap: 8px; }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* ── SQP TAB ── */
-  .sqp-wrap { display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:start; }
-  .sqp-item { padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); transition:background 0.1s; }
-  .sqp-item:hover { background:var(--surface2); }
-  .sqp-item.active { background:#FBF0EC; border-left:3px solid #E8502A; padding-left:11px; }
-  .sqp-sku  { font-family:monospace; font-size:12px; font-weight:600; color:#E8502A; }
-  .sqp-asin { font-family:monospace; font-size:10px; color:var(--text-soft); margin-top:2px; }
-  .sqp-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .sqp-table thead th { padding:9px 12px; text-align:left; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-soft); border-bottom:2px solid var(--border); background:var(--surface2); position:sticky; top:0; z-index:1; white-space:nowrap; }
-  .sqp-row { border-bottom:1px solid var(--border); }
-  .sqp-row:hover { background:var(--surface2); }
-  .edurino-row { background:#FBF0EC; }
-  .edurino-row:hover { background:#f5e0d5; }
-  .sqp-rank { padding:8px 8px 8px 14px; font-size:11px; color:var(--text-soft); font-family:monospace; white-space:nowrap; }
-  .sqp-word { padding:8px 10px; font-family:monospace; font-size:13px; color:var(--text); white-space:nowrap; }
-  .sqp-word strong { color:#E8502A; font-weight:700; }
-  .sqp-bar-cell { padding:8px 10px; width:45%; }
-  .sqp-bar-wrap { background:var(--surface2); border-radius:3px; height:8px; overflow:hidden; }
-  .sqp-bar { height:100%; background:#b8cfe0; border-radius:3px; }
-  .sqp-bar-hi { background:#E8502A; }
-  .sqp-val { padding:8px 14px 8px 6px; text-align:right; font-family:monospace; font-size:12px; color:var(--text-mid); white-space:nowrap; }
-
-  /* SQP brand item */
+  /* SQP SHARED */
+  .sqp-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: start; }
+  .sqp-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .sqp-item:hover { background: var(--surface2); }
+  .sqp-item.active { background: #FBF0EC; border-left: 3px solid #E8502A; padding-left: 11px; }
   .sqp-brand-item { border-top: 2px solid #E8502A; }
+  .sqp-sku  { font-family: monospace; font-size: 12px; font-weight: 600; color: #E8502A; }
+  .sqp-asin { font-family: monospace; font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+  .sqp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sqp-table thead th { padding: 9px 12px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-soft); border-bottom: 2px solid var(--border); background: var(--surface2); position: sticky; top: 0; z-index: 1; white-space: nowrap; }
+  .sqp-row { border-bottom: 1px solid var(--border); }
+  .sqp-row:hover { background: var(--surface2); }
+  .edurino-row { background: #FBF0EC; }
+  .edurino-row:hover { background: #f5e0d5; }
+  .sqp-rank { padding: 8px 8px 8px 14px; font-size: 11px; color: var(--text-soft); font-family: monospace; white-space: nowrap; }
+  .sqp-word { padding: 8px 10px; font-family: monospace; font-size: 13px; color: var(--text); white-space: nowrap; }
+  .sqp-word strong { color: #E8502A; font-weight: 700; }
+  .sqp-bar-cell { padding: 8px 10px; }
+  .sqp-bar-wrap { background: var(--surface2); border-radius: 3px; height: 8px; overflow: hidden; }
+  .sqp-bar { height: 100%; background: #b8cfe0; border-radius: 3px; }
+  .sqp-bar-hi { background: #E8502A; }
+  .sqp-val { padding: 8px 14px 8px 6px; text-align: right; font-family: monospace; font-size: 12px; color: var(--text-mid); white-space: nowrap; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo"><div class="logo-dot">E</div>Edurino</div>
   <span class="header-sub">AMAZON DE &middot; LISTING TOOL</span>
 </header>
+
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('clean',this)">Clean Conversion</button>
   <button class="tab-btn" onclick="switchTab('sqpctr',this)">SQP - CTR</button>
   <button class="tab-btn" onclick="switchTab('sqp',this)">SQP Conversion</button>
 </div>
+
+<!-- ═══ TAB 1: CLEAN CONVERSION ═══════════════════════════════════════════ -->
 <div id="tab-clean" class="tab-content active">
-<header>
-  <div class="logo"><div class="logo-dot">E</div>Edurino</div>
-  <span class="header-sub">AMAZON DE &middot; TITLE GENERATOR</span>
-</header>
 <div class="container">
   <div id="mainGrid">
-    <div class="panel" id="tablePanel">
+    <div class="panel">
       <div class="panel-header">
         <span class="panel-title">Products <span class="pill-count" id="prodCount">44</span></span>
-        <button class="btn btn-secondary btn-sm" id="fetchAllBtn" onclick="fetchAllTitles()">&#8595; Fetch Missing Titles</button>
+        <a href="https://www.amazon.de/s?me=A1UAV4OMZY0UMT" target="_blank" class="btn btn-secondary btn-sm">&#8599; amazon.de store</a>
       </div>
-      <div class="info-bar">
-        <span>&#9679;</span> Titles loaded in German directly from amazon.de
-      </div>
-      <div id="fetchAllBar" style="display:none" class="fetch-all-bar">
-        <span id="fetchAllMsg">Loading...</span>
-        <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-        <span id="fetchAllCount" style="font-family:monospace;font-size:11px;white-space:nowrap"></span>
-      </div>
+      <div class="info-bar">&#9679; Titles loaded in German directly from amazon.de &bull; Split auto-calculated at pipe boundaries</div>
       <div style="padding:10px 12px 0">
         <input class="search-box" id="searchBox" type="text" placeholder="Filter by SKU or ASIN..." oninput="renderTable()">
       </div>
       <div class="product-table-wrap">
         <table>
-          <thead><tr><th>SKU / ASIN</th><th style="width:34%">Current Title (amazon.de)</th><th style="width:22%">Title 1 &mdash; Headline <span style="font-weight:400;opacity:0.7">(&#x2264;75)</span></th><th style="width:30%">Title 2 &mdash; Extended <span style="font-weight:400;opacity:0.7">(&#x2264;125)</span></th><th></th></tr></thead>
+          <thead>
+            <tr>
+              <th>SKU / ASIN</th>
+              <th style="width:28%">Current Title (amazon.de)</th>
+              <th style="width:22%">Title 1 &mdash; Headline <span style="font-weight:400;opacity:0.7">(&#x2264;75)</span></th>
+              <th style="width:28%">Title 2 &mdash; Extended <span style="font-weight:400;opacity:0.7">(&#x2264;125)</span></th>
+              <th></th>
+            </tr>
+          </thead>
           <tbody id="productTbody"></tbody>
         </table>
       </div>
@@ -174,6 +189,8 @@
   </div>
 </div>
 </div>
+
+<!-- ═══ TAB 2: SQP - CTR ══════════════════════════════════════════════════ -->
 <div id="tab-sqpctr" class="tab-content">
 <div class="container" style="padding-top:24px">
   <div class="sqp-wrap">
@@ -184,16 +201,18 @@
     <div class="panel">
       <div class="panel-header">
         <span class="panel-title" id="sqpCtrTitle">Select an ASIN</span>
-        <span style="font-size:10px;color:var(--text-soft)">Coming soon &mdash; CTR analysis per keyword</span>
+        <span style="font-size:10px;color:var(--text-soft)">CTR analysis per keyword &mdash; coming soon</span>
       </div>
       <div id="sqpCtrContent" style="padding:48px 24px;text-align:center;color:var(--text-soft)">
         <div style="font-size:13px;font-weight:500;color:var(--text-mid)">Select an ASIN to view CTR data</div>
-        <div style="font-size:12px;margin-top:6px">This tab will read the SQP file differently to the SQP Conversion tab</div>
+        <div style="font-size:12px;margin-top:6px">This tab will read the SQP file with a different method to the SQP Conversion tab</div>
       </div>
     </div>
   </div>
 </div>
 </div>
+
+<!-- ═══ TAB 3: SQP CONVERSION ═════════════════════════════════════════════ -->
 <div id="tab-sqp" class="tab-content">
 <div class="container" style="padding-top:24px">
   <div class="sqp-wrap">
@@ -214,223 +233,128 @@
   </div>
 </div>
 </div>
+
 <script>
-
+/* ── TAB SWITCHING ──────────────────────────────────────────────────────── */
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
-  if(btn) btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   var el = document.getElementById('tab-'+tab);
-  if(el) el.classList.add('active');
-  if(tab==='sqp') initSQP();
-  if(tab==='sqpctr') initSQPCtr();
+  if (el) el.classList.add('active');
+  if (tab === 'sqp')    initSQP();
+  if (tab === 'sqpctr') initSQPCtr();
 }
 
-function initSQPCtr() {
-  var list = document.getElementById('sqpCtrList');
-  if (!list || list.innerHTML) return;
-  list.innerHTML = Object.keys(SQP_DATA).map(function(sku) {
-    var d = SQP_DATA[sku];
-    var isBrand = sku === 'Brand';
-    return '<div class="sqp-item'+(isBrand?' sqp-brand-item':'')+' " id="sctr-'+sku+'" onclick="showSQPCtr(''+sku+'')">' +
-      '<div class="sqp-sku">'+sku+'</div>' +
-      '<div class="sqp-asin">'+d.asin+'</div>' +
-      '</div>';
-  }).join('');
-}
-
-function showSQPCtr(sku) {
-  document.querySelectorAll('#sqpCtrList .sqp-item').forEach(function(el){el.classList.remove('active');});
-  var el = document.getElementById('sctr-'+sku); if(el) el.classList.add('active');
-  document.getElementById('sqpCtrTitle').textContent = sku + ' — CTR View';
-  document.getElementById('sqpCtrContent').innerHTML =
-    '<div style="padding:32px;text-align:center;color:var(--text-soft)">' +
-    '<div style="font-size:13px;font-weight:500;color:var(--text-mid)">CTR analysis for '+sku+' coming soon</div>' +
-    '</div>';
-}
-
-
-function switchTab(tab, btn) {
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-  document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
-  if(btn) btn.classList.add('active');
-  var el = document.getElementById('tab-'+tab);
-  if(el) el.classList.add('active');
-  if(tab==='sqp') initSQP();
-  if(tab==='sqpctr') initSQPCtr();
-}
-
-function initSQPCtr() {
-  var list = document.getElementById('sqpCtrList');
-  if (!list || list.innerHTML) return;
-  list.innerHTML = Object.keys(SQP_DATA).map(function(sku) {
-    var d = SQP_DATA[sku];
-    var isBrand = sku === 'Brand';
-    return '<div class="sqp-item'+(isBrand?' sqp-brand-item':'')+' " id="sctr-'+sku+'" onclick="showSQPCtr(''+sku+'')">' +
-      '<div class="sqp-sku">'+sku+'</div>' +
-      '<div class="sqp-asin">'+d.asin+'</div>' +
-      '</div>';
-  }).join('');
-}
-
-function showSQPCtr(sku) {
-  document.querySelectorAll('#sqpCtrList .sqp-item').forEach(function(el){el.classList.remove('active');});
-  var el = document.getElementById('sctr-'+sku); if(el) el.classList.add('active');
-  document.getElementById('sqpCtrTitle').textContent = sku + ' — CTR View';
-  document.getElementById('sqpCtrContent').innerHTML =
-    '<div style="padding:32px;text-align:center;color:var(--text-soft)">' +
-    '<div style="font-size:13px;font-weight:500;color:var(--text-mid)">CTR analysis for '+sku+' coming soon</div>' +
-    '</div>';
-}
-// German titles sourced directly from amazon.de product pages
+/* ── PRODUCT DATA (baked in — no API needed) ────────────────────────────── */
 var PRODUCTS = [
-  { asin: "B0CHJHHM8K", sku: "DE-AMZ-01",     title: "Edurino Bundle | 5 spannende Lernspiele | 4-8 Jahre | Lesen & Schreiben, Zahlen, Erstes Englisch, Logisches Denken, Kreativit\u00e4t inkl. Stift & Mäppchen", lang: "de" },
-  { asin: "B0DYK9SBLM", sku: "DE-AMZ-05",     title: "Edurino 3-in-1 Starterset | 3 Lernspiele | Ab 4 Jahren | Digitales Lernspiel mit Mika Erstes Lesen & Schreiben, Robin Erste Zahlen & Mengen, Yuki Kreativit\u00e4t inkl. Stift", lang: "de" },
-  { asin: "B0DYK9SBLM", sku: "DE-AMZ-05-FBM", title: "Edurino 3-in-1 Starterset | 3 Lernspiele | Ab 4 Jahren | Digitales Lernspiel mit Mika Erstes Lesen & Schreiben, Robin Erste Zahlen & Mengen, Yuki Kreativit\u00e4t inkl. Stift", lang: "de" },
-  { asin: "B09ZY92SHQ", sku: "DE-F001",        title: "Edurino Figur Mika Erstes Lesen & Schreiben (Stufe 1) ab 4 Jahren inkl. App | Innovatives & digitales Lernspiel | Spielerisches Lernen von Buchstaben, Silben & Reimen", lang: "de" },
-  { asin: "B09ZY95BRH", sku: "DE-F002",        title: "Edurino Figur Robin Zahlen & Mengen ab 4 Jahren inkl. App | Innovatives & digitales Lernspiel f\u00fcr M\u00e4dchen und Jungen | Spielerisches Lernen Zahlen 0\u201310, Geometrische Formen", lang: "de" },
-  { asin: "B07H44RYTZ", sku: "DE-F003",        title: "", lang: "" },
-  { asin: "B0BK9FT32K", sku: "DE-F004",        title: "Edurino Figur Luka Logisches Denken & Coding ab 4 Jahren inkl. App | Innovatives & digitales Lernspiel | Spielerisch Strukturen & Muster erkennen, R\u00e4tsel, Logisches Denken", lang: "de" },
-  { asin: "B0C2ZR48CR", sku: "DE-F005",        title: "", lang: "" },
-  { asin: "B0C2ZR48CR", sku: "DE-F005-FBM",    title: "", lang: "" },
-  { asin: "B0CB4SVN6P", sku: "DE-F006",        title: "Edurino Figur Asa Unsere Natur ab 4 Jahren inkl. App | Heimische Pflanzen & Tiere, Artenvielfalt, Zusammenh\u00e4ngen in der Natur, Nachhaltigkeit und Umweltschutz", lang: "de" },
-  { asin: "B0CHK42G63", sku: "DE-F007",        title: "Edurino Figur Ari Mein K\u00f6rper ab 4 Jahren inkl. App | Die K\u00f6rperteile | Die f\u00fcnf Sinne | Hygiene & Z\u00e4hne | Schutz & Bed\u00fcrfnisse", lang: "de" },
-  { asin: "B0CQ8QY83V", sku: "DE-F008",        title: "Edurino Figur Mika ABC: Die Buchstaben Lesen & Schreiben ab 4 Jahren \u2013 Stufe 2 inkl. App | Gro\u00df- und Kleinbuchstaben | Buchstaben richtig schreiben | Laute in W\u00f6rtern", lang: "de" },
-  { asin: "B0CLB9BCRH", sku: "DE-F009",        title: "Edurino Figur Leo Meine Gef\u00fchle ab 4 Jahren inkl. App | Eigene Gef\u00fchle f\u00fchlen & benennen | Gef\u00fchle anderer erkennen | Gef\u00fchle ausdr\u00fccken", lang: "de" },
-  { asin: "B0CT8Z2KMH", sku: "DE-F010",        title: "Edurino Figur Robin Erstes Rechnen bis 10 (Stufe 2) ab 4 Jahren inkl. App | Zahlenverst\u00e4ndnis | Zahlen sortieren & ordnen | Erstes Plus & Minus Rechnen", lang: "de" },
-  { asin: "B0D9BHLPY6", sku: "DE-F011",        title: "Edurino Figur Alex Die Uhr ab 4 Jahren inkl. App | Erstes Zeitverst\u00e4ndnis | Tagesabl\u00e4ufe & Routinen | Uhrzeiten ablesen (volle & halbe Stunde)", lang: "de" },
-  { asin: "B0D2HXWY11", sku: "DE-F012",        title: "Edurino Figur Ollie Aufmerksamkeit & Konzentration ab 4 Jahren inkl. App | Aufmerksamkeit aufrechterhalten | H\u00f6ren & Beobachten | Konzentration & Gehirntraining", lang: "de" },
-  { asin: "B0DDT9655B", sku: "DE-F013",        title: "Edurino Figur Asa Tierwelten (Stufe 2) ab 4 Jahren inkl. App | Vielf\u00e4ltige Tierwelten entdecken | Lebensr\u00e4ume erkunden", lang: "de" },
-  { asin: "B0FFNFK6NS", sku: "DE-F014",        title: "Edurino Figur Luca Medien verstehen & nutzen ab 4 Jahren inkl. App | Sicherer Umgang mit digitalen Medien | Digitale Ger\u00e4te kennenlernen", lang: "de" },
-  { asin: "B0FFNHXLBV", sku: "DE-F015",        title: "Edurino Figur Leo Freundschaft & Soziales ab 4 Jahren inkl. App | Soziale Kompetenzen entwickeln | Empathie ausdr\u00fccken | Konfliktl\u00f6sungsstrategien", lang: "de" },
-  { asin: "B0FFNNMKJT", sku: "DE-F016",        title: "Edurino Figur Mika W\u00f6rter & S\u00e4tze ab 4 Jahren inkl. App | Buchstaben & Laute erkennen | Satzstrukturen verstehen | Laute zu W\u00f6rtern & S\u00e4tzen zusammensetzen", lang: "de" },
-  { asin: "B0FFP79QQ1", sku: "DE-F017",        title: "Edurino Figur Alex Jahreszeiten & Kalender ab 4 Jahren inkl. App | Jahreszeiten verstehen | Wetter & Natur | Kalender, Monate & Wochentage", lang: "de" },
-  { asin: "B0GFBMCN1Q", sku: "DE-F018",        title: "", lang: "" },
-  { asin: "B0GFBPKPY2", sku: "DE-F019",        title: "", lang: "" },
-  { asin: "B0GFBXYWLB", sku: "DE-F020",        title: "", lang: "" },
-  { asin: "B0GP8MFM6V", sku: "DE-F021",        title: "", lang: "" },
-  { asin: "B0H4GLCGKM", sku: "DE-F022",        title: "", lang: "" },
-  { asin: "B0H4GYM1C5", sku: "DE-F023",        title: "", lang: "" },
-  { asin: "B09ZYFYTY6", sku: "DE-S001",        title: "Edurino Starterset Mika Erstes Lesen & Schreiben (Stufe 1) ab 4 Jahren inkl. Eingabestift | Innovatives & digitales Lernspiel | Spielerisches Lernen von Buchstaben, Silben & Reimen", lang: "de" },
-  { asin: "B09ZYCFPQZ", sku: "DE-S002",        title: "", lang: "" },
-  { asin: "B0C1KP67SD", sku: "DE-S004",        title: "", lang: "" },
-  { asin: "B0C2ZT6W1K", sku: "DE-S005",        title: "Edurino Starterset Juki Kreativit\u00e4t & Malen ab 4 Jahren inkl. Eingabestift | Innovatives & digitales Lernspiel | Farblehre & Malexperimente", lang: "de" },
-  { asin: "B0CQ8Q6S14", sku: "DE-S008",        title: "", lang: "" },
-  { asin: "B0CT93TDXJ", sku: "DE-S010",        title: "", lang: "" },
-  { asin: "B0H4LVC7SG", sku: "DE-S022",        title: "", lang: "" },
-  { asin: "B0CJYLS6K4", sku: "M002",           title: "", lang: "" },
-  { asin: "B0CJYM1XLS", sku: "M003",           title: "Edurino Sammel-M\u00e4ppchen zum Aufbewahren von Figuren und Stift | Lernspiele ab 4 Jahren | Platz f\u00fcr bis zu 12 Figuren und 1 Stift", lang: "de" },
-  { asin: "B0GFCBN7N1", sku: "M069",           title: "", lang: "" },
-  { asin: "B0BLWB7SWK", sku: "PBL-P",          title: "Edurino Ergonomischer Eingabestift | Special Edition Tablet-Stift f\u00fcr Kinder | Stylus f\u00fcr Edurino Figuren | Lernspiele ab 4 Jahren | Stylus Touch Pen", lang: "de" },
-  { asin: "B0CJJVTBT5", sku: "PDG-P",          title: "", lang: "" },
-  { asin: "B0BS1H5FW5", sku: "PLG-P",          title: "Edurino Ergonomischer Eingabestift | Tablet-Stift f\u00fcr Kinder | Stylus f\u00fcr Edurino Figuren | Lernspiele ab 4 Jahren | Stylus Touch Pen (hellgr\u00fcn)", lang: "de" },
-  { asin: "B0H31XW5LH", sku: "PMA-P",          title: "", lang: "" },
-  { asin: "B0BS1GCMPL", sku: "PPI-P",          title: "", lang: "" },
-  { asin: "B0CJJX4DM9", sku: "PPU-P",          title: "", lang: "" },
-  { asin: "B0CJJWPK1H", sku: "PRE-P",          title: "", lang: "" }
+  { asin: "B0CHJHHM8K", sku: "DE-AMZ-01", title: "Edurino Bundle | 5 spannende Lernspiele | 4-8 Jahre | Lesen & Schreiben, Zahlen, Erstes Englisch, Logisches Denken, Kreativität inkl. Stift & Mäppchen" },
+  { asin: "B0DYK9SBLM", sku: "DE-AMZ-05", title: "Edurino 3-in-1 Starterset | 3 Lernspiele | Ab 4 Jahren | Digitales Lernspiel mit Mika Erstes Lesen & Schreiben, Robin Erste Zahlen & Mengen, Yuki Kreativität inkl. Stift" },
+  { asin: "B0DYK9SBLM", sku: "DE-AMZ-05-FBM", title: "Edurino 3-in-1 Starterset | 3 Lernspiele | Ab 4 Jahren | Digitales Lernspiel mit Mika Erstes Lesen & Schreiben, Robin Erste Zahlen & Mengen, Yuki Kreativität inkl. Stift" },
+  { asin: "B09ZY92SHQ", sku: "DE-F001", title: "Edurino Figur Mika Erstes Lesen & Schreiben (Stufe 1) ab 4 Jahren inkl. App | Innovatives & digitales Lernspiel | Spielerisches Lernen von Buchstaben, Silben & Reimen" },
+  { asin: "B09ZY95BRH", sku: "DE-F002", title: "Edurino Figur Robin Zahlen & Mengen ab 4 Jahren inkl. App | Innovatives & digitales Lernspiel für Mädchen und Jungen | Spielerisches Lernen Zahlen 0–10, Geometrische Formen" },
+  { asin: "B07H44RYTZ", sku: "DE-F003", title: "" },
+  { asin: "B0BK9FT32K", sku: "DE-F004", title: "Edurino Figur Luka Logisches Denken & Coding ab 4 Jahren inkl. App | Innovatives & digitales Lernspiel | Spielerisch Strukturen & Muster erkennen, Rätsel, Logisches Denken" },
+  { asin: "B0C2ZR48CR", sku: "DE-F005", title: "" },
+  { asin: "B0C2ZR48CR", sku: "DE-F005-FBM", title: "" },
+  { asin: "B0CB4SVN6P", sku: "DE-F006", title: "Edurino Figur Asa Unsere Natur ab 4 Jahren inkl. App | Heimische Pflanzen & Tiere, Artenvielfalt, Zusammenhängen in der Natur, Nachhaltigkeit und Umweltschutz" },
+  { asin: "B0CHK42G63", sku: "DE-F007", title: "Edurino Figur Ari Mein Körper ab 4 Jahren inkl. App | Die Körperteile | Die fünf Sinne | Hygiene & Zähne | Schutz & Bedürfnisse" },
+  { asin: "B0CQ8QY83V", sku: "DE-F008", title: "Edurino Figur Mika ABC: Die Buchstaben Lesen & Schreiben ab 4 Jahren – Stufe 2 inkl. App | Groß- und Kleinbuchstaben | Buchstaben richtig schreiben | Laute in Wörtern" },
+  { asin: "B0CLB9BCRH", sku: "DE-F009", title: "Edurino Figur Leo Meine Gefühle ab 4 Jahren inkl. App | Eigene Gefühle fühlen & benennen | Gefühle anderer erkennen | Gefühle ausdrücken" },
+  { asin: "B0CT8Z2KMH", sku: "DE-F010", title: "Edurino Figur Robin Erstes Rechnen bis 10 (Stufe 2) ab 4 Jahren inkl. App | Zahlenverständnis | Zahlen sortieren & ordnen | Erstes Plus & Minus Rechnen" },
+  { asin: "B0D9BHLPY6", sku: "DE-F011", title: "Edurino Figur Alex Die Uhr ab 4 Jahren inkl. App | Erstes Zeitverständnis | Tagesabläufe & Routinen | Uhrzeiten ablesen (volle & halbe Stunde)" },
+  { asin: "B0D2HXWY11", sku: "DE-F012", title: "Edurino Figur Ollie Aufmerksamkeit & Konzentration ab 4 Jahren inkl. App | Aufmerksamkeit aufrechterhalten | Hören & Beobachten | Konzentration & Gehirntraining" },
+  { asin: "B0DDT9655B", sku: "DE-F013", title: "Edurino Figur Asa Tierwelten (Stufe 2) ab 4 Jahren inkl. App | Vielfältige Tierwelten entdecken | Lebensräume erkunden" },
+  { asin: "B0FFNFK6NS", sku: "DE-F014", title: "Edurino Figur Luca Medien verstehen & nutzen ab 4 Jahren inkl. App | Sicherer Umgang mit digitalen Medien | Digitale Geräte kennenlernen" },
+  { asin: "B0FFNHXLBV", sku: "DE-F015", title: "Edurino Figur Leo Freundschaft & Soziales ab 4 Jahren inkl. App | Soziale Kompetenzen entwickeln | Empathie ausdrücken | Konfliktlösungsstrategien" },
+  { asin: "B0FFNNMKJT", sku: "DE-F016", title: "Edurino Figur Mika Wörter & Sätze ab 4 Jahren inkl. App | Buchstaben & Laute erkennen | Satzstrukturen verstehen | Laute zu Wörtern & Sätzen zusammensetzen" },
+  { asin: "B0FFP79QQ1", sku: "DE-F017", title: "Edurino Figur Alex Jahreszeiten & Kalender ab 4 Jahren inkl. App | Jahreszeiten verstehen | Wetter & Natur | Kalender, Monate & Wochentage" },
+  { asin: "B0GFBMCN1Q", sku: "DE-F018", title: "" },
+  { asin: "B0GFBPKPY2", sku: "DE-F019", title: "" },
+  { asin: "B0GFBXYWLB", sku: "DE-F020", title: "" },
+  { asin: "B0GP8MFM6V", sku: "DE-F021", title: "" },
+  { asin: "B0H4GLCGKM", sku: "DE-F022", title: "" },
+  { asin: "B0H4GYM1C5", sku: "DE-F023", title: "" },
+  { asin: "B09ZYFYTY6", sku: "DE-S001", title: "Edurino Starterset Mika Erstes Lesen & Schreiben (Stufe 1) ab 4 Jahren inkl. Eingabestift | Innovatives & digitales Lernspiel | Spielerisches Lernen von Buchstaben, Silben & Reimen" },
+  { asin: "B09ZYCFPQZ", sku: "DE-S002", title: "" },
+  { asin: "B0C1KP67SD", sku: "DE-S004", title: "" },
+  { asin: "B0C2ZT6W1K", sku: "DE-S005", title: "Edurino Starterset Juki Kreativität & Malen ab 4 Jahren inkl. Eingabestift | Innovatives & digitales Lernspiel | Farblehre & Malexperimente" },
+  { asin: "B0CQ8Q6S14", sku: "DE-S008", title: "" },
+  { asin: "B0CT93TDXJ", sku: "DE-S010", title: "" },
+  { asin: "B0H4LVC7SG", sku: "DE-S022", title: "" },
+  { asin: "B0CJYLS6K4", sku: "M002", title: "" },
+  { asin: "B0CJYM1XLS", sku: "M003", title: "Edurino Sammel-Mäppchen zum Aufbewahren von Figuren und Stift | Lernspiele ab 4 Jahren | Platz für bis zu 12 Figuren und 1 Stift" },
+  { asin: "B0GFCBN7N1", sku: "M069", title: "" },
+  { asin: "B0BLWB7SWK", sku: "PBL-P", title: "Edurino Ergonomischer Eingabestift | Special Edition Tablet-Stift für Kinder | Stylus für Edurino Figuren | Lernspiele ab 4 Jahren | Stylus Touch Pen" },
+  { asin: "B0CJJVTBT5", sku: "PDG-P", title: "" },
+  { asin: "B0BS1H5FW5", sku: "PLG-P", title: "Edurino Ergonomischer Eingabestift | Tablet-Stift für Kinder | Stylus für Edurino Figuren | Lernspiele ab 4 Jahren | Stylus Touch Pen (hellgrün)" },
+  { asin: "B0H31XW5LH", sku: "PMA-P", title: "" },
+  { asin: "B0BS1GCMPL", sku: "PPI-P", title: "" },
+  { asin: "B0CJJX4DM9", sku: "PPU-P", title: "" },
+  { asin: "B0CJJWPK1H", sku: "PRE-P", title: "" }
 ];
 
-var fetchedStatus = {};
-PRODUCTS.forEach(function(p) { if (p.title) fetchedStatus[p.asin] = 'fetched'; });
-var selectedIdx = null;
-var keywords = [];
-var generatedTitles = { t75: '', t125: '' };
-var isFetchingAll = false;
-var _meta = {};
-
-// Split at pipe boundaries so T1 always ends on a complete, readable unit.
-// Packs as many full pipe-segments into T1 as fit within 75 chars.
-// T2 gets the remaining segments up to 125 chars.
+/* ── SPLIT LOGIC ────────────────────────────────────────────────────────── */
 function splitTitle(title) {
   if (!title) return { t1: '', t2: '' };
-  var MAX1 = 75, MAX2 = 125;
-
-  var segments = title.split('|').map(function(s){ return s.trim(); });
-
-  // Build T1: add full pipe-segments until next one would exceed 75
-  var t1 = '';
-  var usedCount = 0;
-  for (var i = 0; i < segments.length; i++) {
-    var candidate = t1 ? t1 + ' | ' + segments[i] : segments[i];
-    if (candidate.length <= MAX1) {
-      t1 = candidate;
-      usedCount = i + 1;
-    } else {
-      break;
+  var segs = title.split('|').map(function(s){ return s.trim(); });
+  var t1 = '', used = 0;
+  for (var i = 0; i < segs.length; i++) {
+    var c = t1 ? t1 + ' | ' + segs[i] : segs[i];
+    if (c.length <= 75) { t1 = c; used = i + 1; } else { break; }
+  }
+  if (!t1 && segs.length) {
+    var ws = segs[0].split(' '), b = '';
+    for (var w = 0; w < ws.length; w++) {
+      var wc = b ? b+' '+ws[w] : ws[w];
+      if (wc.length <= 75) { b = wc; } else { break; }
     }
+    t1 = b.replace(/[\s|&–\-,]+$/, '').trim(); used = 0;
   }
-
-  // Fallback: if even first segment > 75, trim at last word, strip trailing punctuation
-  if (!t1 && segments.length > 0) {
-    var words = segments[0].split(' ');
-    var built = '';
-    for (var w = 0; w < words.length; w++) {
-      var wc = built ? built + ' ' + words[w] : words[w];
-      if (wc.length <= MAX1) { built = wc; } else { break; }
-    }
-    t1 = built.replace(/[\s|&\u2013\-,]+$/, '').trim();
-    usedCount = 0;
+  var rem = segs.slice(used), t2 = '';
+  for (var j = 0; j < rem.length; j++) {
+    var c2 = t2 ? t2+' | '+rem[j] : rem[j];
+    if (c2.length <= 125) { t2 = c2; } else { break; }
   }
-
-  // Build T2: remaining segments, packed to 125 chars at pipe boundaries
-  var remaining = segments.slice(usedCount);
-  var t2 = '';
-  for (var j = 0; j < remaining.length; j++) {
-    var c2 = t2 ? t2 + ' | ' + remaining[j] : remaining[j];
-    if (c2.length <= MAX2) { t2 = c2; } else { break; }
-  }
-
   return { t1: t1, t2: t2 };
 }
-
-
-function cclsStr(len, max) {
+function ccls(len, max) {
   if (!len) return '';
-  if (len <= max * 0.9) return 'ok';
-  if (len <= max) return 'warn';
-  return 'over';
+  return len <= max*0.9 ? 'ok' : len <= max ? 'warn' : 'over';
 }
 
+/* ── CLEAN CONVERSION TABLE ─────────────────────────────────────────────── */
+var selectedIdx = null, keywords = [], generatedTitles = { t75:'', t125:'' };
+
 function renderTable() {
-  var f = (document.getElementById('searchBox').value || '').toLowerCase();
+  var f = (document.getElementById('searchBox').value||'').toLowerCase();
   var filtered = PRODUCTS.filter(function(p) {
-    return p.asin.toLowerCase().indexOf(f) > -1 || p.sku.toLowerCase().indexOf(f) > -1 || p.title.toLowerCase().indexOf(f) > -1;
+    return p.asin.toLowerCase().indexOf(f)>-1 || p.sku.toLowerCase().indexOf(f)>-1 || p.title.toLowerCase().indexOf(f)>-1;
   });
   document.getElementById('prodCount').textContent = filtered.length;
-  var rows = filtered.map(function(p) {
+  document.getElementById('productTbody').innerHTML = filtered.map(function(p) {
     var ri = PRODUCTS.indexOf(p);
-    var s = fetchedStatus[p.asin] || (p.title ? 'fetched' : '');
     var isActive = selectedIdx === ri;
-    var langBadge = p.lang === 'de' ? '<span class="lang-badge lang-de">DE</span>' : (p.lang === 'en' ? '<span class="lang-badge lang-en">EN</span>' : '');
-
-    // Current title cell (truncated)
     var titleCell = p.title
-      ? '<span class="td-title de-title" title="' + p.title.replace(/"/g,'&quot;') + '">' + p.title + '</span>' + langBadge
-      : '<span class="td-title" style="color:var(--text-soft);font-style:italic">Not fetched</span>';
-
-    // Split title cells
-    var split = splitTitle(p.title);
-    var t1Cell = split.t1
-      ? '<div class="td-split t75">' + split.t1 + '</div><div><span class="split-chars ' + cclsStr(split.t1.length,75) + '">' + split.t1.length + '/75</span></div>'
-      : '<div class="td-split empty">—</div>';
-    var t2Cell = split.t2
-      ? '<div class="td-split t125">' + split.t2 + '</div><div><span class="split-chars ' + cclsStr(split.t2.length,125) + '">' + split.t2.length + '/125</span></div>'
-      : '<div class="td-split empty">—</div>';
-
-    return '<tr class="' + (isActive ? 'active' : '') + '" onclick="selectProduct(' + ri + ')">' +
-      '<td style="min-width:130px;vertical-align:top"><div class="td-sku">' + p.sku + '</div><div class="td-asin">' + p.asin + '</div></td>' +
-      '<td style="vertical-align:top">' + titleCell + '</td>' +
-      '<td style="vertical-align:top;padding:8px 10px">' + t1Cell + '</td>' +
-      '<td style="vertical-align:top;padding:8px 10px">' + t2Cell + '</td>' +
-      '<td style="text-align:center;vertical-align:middle;padding:0 8px"><span class="status-dot ' + s + '"></span></td>' +
+      ? '<span class="td-title" title="'+p.title.replace(/"/g,'&quot;')+'">'+p.title+'</span>'
+      : '<span class="td-title empty">Not fetched</span>';
+    var sp = splitTitle(p.title);
+    var t1c = sp.t1 ? '<div class="td-split">'+sp.t1+'</div><span class="split-chars '+ccls(sp.t1.length,75)+'">'+sp.t1.length+'/75</span>'
+                    : '<div class="td-split empty">—</div>';
+    var t2c = sp.t2 ? '<div class="td-split">'+sp.t2+'</div><span class="split-chars '+ccls(sp.t2.length,125)+'">'+sp.t2.length+'/125</span>'
+                    : '<div class="td-split empty">—</div>';
+    return '<tr class="'+(isActive?'active':'')+'" onclick="selectProduct('+ri+')">'+
+      '<td style="min-width:130px;vertical-align:top"><div class="td-sku">'+p.sku+'</div><div class="td-asin">'+p.asin+'</div></td>'+
+      '<td style="vertical-align:top">'+titleCell+'</td>'+
+      '<td style="vertical-align:top;padding:8px 10px;min-width:160px">'+t1c+'</td>'+
+      '<td style="vertical-align:top;padding:8px 10px;min-width:200px">'+t2c+'</td>'+
+      '<td style="text-align:center;vertical-align:middle;padding:0 8px"><span class="status-dot '+(p.title?'fetched':'empty')+'"></span></td>'+
       '</tr>';
-  });
-  document.getElementById('productTbody').innerHTML = rows.join('');
+  }).join('');
 }
 
 function selectProduct(idx) {
-  selectedIdx = idx; keywords = []; generatedTitles = { t75: '', t125: '' };
-  // Show right panel and switch to split layout
+  selectedIdx = idx; keywords = []; generatedTitles = {t75:'',t125:''};
   var rc = document.getElementById('rightCol');
   var grid = document.getElementById('mainGrid');
   if (rc) rc.style.display = 'flex';
@@ -438,273 +362,130 @@ function selectProduct(idx) {
   renderTable(); renderWorkspace();
 }
 
-function fetchAllTitles() {
-  if (isFetchingAll) return;
-  var seen = {};
-  var missing = [];
-  PRODUCTS.forEach(function(p) {
-    if (!p.title && !seen[p.asin]) { seen[p.asin] = true; missing.push(p.asin); }
-  });
-  if (!missing.length) { alert('All titles already loaded!'); return; }
-  isFetchingAll = true;
-  document.getElementById('fetchAllBar').style.display = 'flex';
-  document.getElementById('fetchAllBtn').disabled = true;
-  var done = 0;
-  function next() {
-    if (done >= missing.length) {
-      isFetchingAll = false;
-      document.getElementById('fetchAllBar').style.display = 'none';
-      document.getElementById('fetchAllBtn').disabled = false;
-      document.getElementById('fetchAllBtn').textContent = '\u2713 All loaded';
-      if (selectedIdx !== null) renderWorkspace();
-      return;
-    }
-    var asin = missing[done];
-    document.getElementById('fetchAllMsg').textContent = 'Fetching ' + asin + '...';
-    document.getElementById('fetchAllCount').textContent = done + '/' + missing.length;
-    fetchedStatus[asin] = 'fetching'; renderTable();
-    fetchTitleForAsin(asin).then(function(result) {
-      PRODUCTS.forEach(function(p) { if (p.asin === asin && !p.title) { p.title = result.title; p.lang = result.lang; } });
-      fetchedStatus[asin] = 'fetched';
-      done++;
-      document.getElementById('progressBar').style.width = (done / missing.length * 100) + '%';
-      renderTable(); next();
-    }).catch(function() {
-      fetchedStatus[asin] = 'error'; done++;
-      document.getElementById('progressBar').style.width = (done / missing.length * 100) + '%';
-      renderTable(); next();
-    });
-  }
-  next();
-}
-
-function fetchTitleForAsin(asin) {
-  return fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6", max_tokens: 1000,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
-      system: "Du bist ein Assistent, der Amazon.de Produktdaten auf DEUTSCH extrahiert. Suche nach der ASIN auf amazon.de (NICHT auf amazon.de/en/) und gib den deutschen Produkttitel zurueck. Wichtig: Nur den deutschen Titel, NICHT die englische Version. Antworte NUR mit einem JSON-Objekt: {\"title\":\"\",\"brand\":\"\",\"age_range\":\"\",\"category\":\"\",\"key_features\":[]}. Kein Markdown, nur JSON.",
-      messages: [{ role: "user", content: "Suche auf amazon.de (deutsche Version) nach ASIN " + asin + " und gib den deutschen Produkttitel sowie Details als JSON zurueck. Wichtig: Nutze den deutschen Titel, nicht die englische Uebersetzung." }]
-    })
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    var text = data.content.map(function(b) { return b.type === 'text' ? b.text : ''; }).join('').replace(/```json|```/g,'').trim();
-    var parsed = {};
-    try { parsed = JSON.parse(text); } catch(e) {
-      var m = text.match(/\{[\s\S]*\}/);
-      if (m) try { parsed = JSON.parse(m[0]); } catch(e2) {}
-    }
-    _meta[asin] = parsed;
-    // Detect if returned title is German or English
-    var t = parsed.title || '';
-    var isDE = /[äöüÄÖÜß]/.test(t) || /\bab\b|\binkl\b|\bund\b|\bfür\b|\bvon\b|\bzum\b|\bLernen\b|\bSpiel\b/.test(t);
-    return { title: t, lang: t ? (isDE ? 'de' : 'en') : '' };
-  });
-}
-
-function refetchSingle(asin) {
-  fetchedStatus[asin] = 'fetching'; renderTable();
-  fetchTitleForAsin(asin).then(function(result) {
-    PRODUCTS.forEach(function(p) { if (p.asin === asin) { p.title = result.title; p.lang = result.lang; } });
-    fetchedStatus[asin] = 'fetched'; renderTable(); renderWorkspace();
-  }).catch(function() { fetchedStatus[asin] = 'error'; renderTable(); });
-}
-
 function renderWorkspace() {
   if (selectedIdx === null) return;
   var p = PRODUCTS[selectedIdx];
-  var meta = _meta[p.asin] || {};
-  var featuresHtml = '';
-  if (meta.key_features && meta.key_features.length) {
-    featuresHtml = '<div style="margin-top:12px"><div class="label">Key Features</div><div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">' +
-      meta.key_features.map(function(f) { return '<div style="font-size:12px;color:var(--text-mid);padding:4px 8px;background:var(--surface2);border-radius:4px">&#8226; ' + f + '</div>'; }).join('') +
-      '</div></div>';
-  }
-  var langLabel = p.lang === 'de' ? '<span class="lang-badge lang-de">DE &#10003;</span>' : (p.lang === 'en' ? '<span class="lang-badge lang-en">EN &ndash; re-fetch needed</span>' : '');
   var titleContent = p.title
-    ? '<div class="current-title-text">' + p.title + '</div><div class="title-chars" style="display:flex;align-items:center;gap:8px"><span>' + p.title.length + ' chars</span>' + langLabel + '</div>'
-    : '<div style="color:var(--text-soft);font-size:12px;font-style:italic">Not yet fetched &mdash; click "Re-fetch"</div>';
+    ? '<div class="current-title-text">'+p.title+'</div><div style="font-family:monospace;font-size:10px;color:var(--text-soft);margin-top:6px">'+p.title.length+' chars</div>'
+    : '<div style="color:var(--text-soft);font-size:12px;font-style:italic">No title stored &mdash; add manually below</div>';
 
   document.getElementById('rightCol').innerHTML =
-    '<div class="panel">' +
-      '<div class="panel-header"><span class="panel-title">Product Details</span>' +
-        '<div style="display:flex;gap:8px">' +
-          '<a href="https://www.amazon.de/dp/' + p.asin + '" target="_blank" class="btn btn-secondary btn-sm">&#8599; amazon.de</a>' +
-          '<button class="btn btn-secondary btn-sm" onclick="refetchSingle(\'' + p.asin + '\')">&#8635; Re-fetch</button>' +
-        '</div></div>' +
-      '<div class="panel-body">' +
-        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">' +
-          '<div><div class="label">ASIN</div><div style="font-family:monospace;font-size:20px;font-weight:500">' + p.asin + '</div>' +
-          '<div style="font-family:monospace;font-size:13px;color:var(--text-mid);margin-top:3px">' + p.sku + '</div></div>' +
-          (meta.age_range ? '<div style="text-align:right"><div class="label">Age Range</div><div style="font-size:13px;font-weight:600">' + meta.age_range + '</div></div>' : '') +
-        '</div>' +
-        '<div class="label">Current Amazon.de Title</div>' +
-        '<div class="current-title-box">' + titleContent + '</div>' +
-        featuresHtml +
-      '</div></div>' +
+    '<div class="panel"><div class="panel-header"><span class="panel-title">Product Details</span>'+
+      '<a href="https://www.amazon.de/dp/'+p.asin+'" target="_blank" class="btn btn-secondary btn-sm">&#8599; amazon.de</a>'+
+    '</div><div class="panel-body">'+
+      '<div style="margin-bottom:14px"><div class="label">ASIN</div>'+
+      '<div style="font-family:monospace;font-size:20px;font-weight:500">'+p.asin+'</div>'+
+      '<div style="font-family:monospace;font-size:13px;color:var(--text-mid);margin-top:3px">'+p.sku+'</div></div>'+
+      '<div class="label">Current Amazon.de Title</div>'+
+      '<div class="current-title-box">'+titleContent+'</div>'+
+    '</div></div>'+
 
-    '<div class="panel">' +
-      '<div class="panel-header"><span class="panel-title">Search Terms</span>' +
-        '<label class="btn btn-secondary btn-sm" style="cursor:pointer">&#128194; Upload CSV' +
-          '<input type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFile(event)"></label>' +
-      '</div>' +
-      '<div class="panel-body">' +
-        '<div style="font-size:11px;color:var(--text-soft);margin-bottom:8px">Enter keywords (one per line). <span style="color:#E8502A;font-weight:600">#1&ndash;10 red</span> = highest title priority. <span style="color:#1D7A4E;font-weight:600">#11&ndash;20 green</span> = secondary priority.</div>' +
-        '<textarea class="kw-input" id="kwInput" placeholder="lernspiel kinder ab 4&#10;buchstaben lernen spielzeug&#10;schreiben lernen vorschule&#10;digitales lernspiel tablet&#10;..." oninput="parseKw()"></textarea>' +
-        '<div class="kw-tags" id="kwTags"></div>' +
-      '</div></div>' +
+    '<div class="panel"><div class="panel-header"><span class="panel-title">Search Terms</span>'+
+      '<label class="btn btn-secondary btn-sm" style="cursor:pointer">&#128194; Upload CSV'+
+        '<input type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFile(event)"></label>'+
+    '</div><div class="panel-body">'+
+      '<div style="font-size:11px;color:var(--text-soft);margin-bottom:8px">Enter keywords (one per line). <span style="color:#E8502A;font-weight:600">#1–10 red</span> = highest title priority.</div>'+
+      '<textarea class="kw-input" id="kwInput" placeholder="lernspiel kinder ab 4
+buchstaben lernen spielzeug
+..." oninput="parseKw()"></textarea>'+
+      '<div class="kw-tags" id="kwTags"></div>'+
+    '</div></div>'+
 
-    '<div class="panel">' +
-      '<div class="panel-header"><span class="panel-title">Title Rules</span></div>' +
-      '<div class="panel-body">' +
-        '<div class="rules-grid">' +
-          '<label class="rule-item"><input type="checkbox" id="r-brand" checked> Brand "Edurino" first</label>' +
-          '<label class="rule-item"><input type="checkbox" id="r-age" checked> Include age range</label>' +
-          '<label class="rule-item"><input type="checkbox" id="r-natural" checked> Natural German phrasing</label>' +
-          '<label class="rule-item"><input type="checkbox" id="r-nokw" checked> No keyword stuffing</label>' +
-          '<label class="rule-item"><input type="checkbox" id="r-usp" checked> Lead with product USP</label>' +
-          '<label class="rule-item"><input type="checkbox" id="r-gender"> Gender-neutral language</label>' +
-        '</div>' +
-        '<div class="divider"></div>' +
-        '<input type="text" id="customRule" class="search-box" style="margin:0" placeholder="Custom rule e.g. Always include \'inkl. App\' erw\u00e4hnen oder \'werbefrei\'...">' +
-      '</div></div>' +
+    '<div class="panel"><div class="panel-header"><span class="panel-title">Title Rules</span></div><div class="panel-body">'+
+      '<div class="rules-grid">'+
+        '<label class="rule-item"><input type="checkbox" id="r-brand" checked> Brand "Edurino" first</label>'+
+        '<label class="rule-item"><input type="checkbox" id="r-age" checked> Include age range</label>'+
+        '<label class="rule-item"><input type="checkbox" id="r-natural" checked> Natural German phrasing</label>'+
+        '<label class="rule-item"><input type="checkbox" id="r-nokw" checked> No keyword stuffing</label>'+
+        '<label class="rule-item"><input type="checkbox" id="r-usp" checked> Lead with product USP</label>'+
+        '<label class="rule-item"><input type="checkbox" id="r-gender"> Gender-neutral language</label>'+
+      '</div>'+
+      '<div class="divider"></div>'+
+      '<input type="text" id="customRule" class="search-box" style="margin:0" placeholder="Custom rule e.g. Always include 'inkl. App'...">'+
+    '</div></div>'+
 
-    '<button class="btn btn-primary" id="genBtn" onclick="generateTitles()" style="width:100%;justify-content:center;padding:13px;font-size:14px">&#10022; Generate German Titles</button>' +
+    '<div style="background:#FDF7E8;border:1px solid #f0d88a;border-radius:var(--radius);padding:12px 14px;font-size:12px;color:#8a6000">'+
+      '&#9888; Title generation via AI requires the Claude API. Open this tool inside <strong>Claude.ai</strong> to use the generate feature.'+
+    '</div>'+
 
-    '<div class="panel" id="outputPanel" style="display:none">' +
-      '<div class="panel-header"><span class="panel-title">Generated Titles</span>' +
-        '<button class="btn btn-secondary btn-sm" onclick="generateTitles()">&#8634; Regenerate</button></div>' +
-      '<div style="padding:16px;border-bottom:1px solid var(--border)">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
-          '<div><div class="output-label">Title 1 &ndash; Headline</div><div style="font-size:10px;color:var(--text-soft);margin-top:2px">Target: max. 75 chars</div></div>' +
-          '<span class="char-counter" id="c75">0/75</span></div>' +
-        '<div class="output-block"><div class="output-body"><textarea id="ta75" rows="2" oninput="updateCC(\'ta75\',\'c75\',75)"></textarea></div>' +
-          '<div class="output-foot"><span style="font-size:11px;color:var(--text-soft)">Editable</span><button class="copy-btn" id="cp75" onclick="doCopy(\'ta75\',\'cp75\')">Copy</button></div></div>' +
-      '</div>' +
-      '<div style="padding:16px;border-bottom:1px solid var(--border)">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
-          '<div><div class="output-label">Title 2 &ndash; Extended</div><div style="font-size:10px;color:var(--text-soft);margin-top:2px">Target: max. 125 chars</div></div>' +
-          '<span class="char-counter" id="c125">0/125</span></div>' +
-        '<div class="output-block"><div class="output-body"><textarea id="ta125" rows="3" oninput="updateCC(\'ta125\',\'c125\',125)"></textarea></div>' +
-          '<div class="output-foot"><span style="font-size:11px;color:var(--text-soft)">Editable</span><button class="copy-btn" id="cp125" onclick="doCopy(\'ta125\',\'cp125\')">Copy</button></div></div>' +
-      '</div>' +
-      '<div style="padding:12px 14px"><div class="label" style="margin-bottom:8px">Keyword Coverage</div><div class="kw-used-list" id="kwUsage"></div></div>' +
+    '<div class="panel" id="outputPanel" style="display:none">'+
+      '<div class="panel-header"><span class="panel-title">Generated Titles</span><button class="btn btn-secondary btn-sm" onclick="generateTitles()">&#8634; Regenerate</button></div>'+
+      '<div style="padding:16px;border-bottom:1px solid var(--border)">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+
+          '<div><div class="output-label">Title 1 – Headline</div><div style="font-size:10px;color:var(--text-soft);margin-top:2px">Target: max. 75 chars</div></div>'+
+          '<span class="char-counter" id="c75">0/75</span></div>'+
+        '<div class="output-block"><div class="output-body"><textarea id="ta75" rows="2" oninput="updateCC('ta75','c75',75)"></textarea></div>'+
+          '<div class="output-foot"><span style="font-size:11px;color:var(--text-soft)">Editable</span><button class="copy-btn" id="cp75" onclick="doCopy('ta75','cp75')">Copy</button></div></div>'+
+      '</div>'+
+      '<div style="padding:16px;border-bottom:1px solid var(--border)">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+
+          '<div><div class="output-label">Title 2 – Extended</div><div style="font-size:10px;color:var(--text-soft);margin-top:2px">Target: max. 125 chars</div></div>'+
+          '<span class="char-counter" id="c125">0/125</span></div>'+
+        '<div class="output-block"><div class="output-body"><textarea id="ta125" rows="3" oninput="updateCC('ta125','c125',125)"></textarea></div>'+
+          '<div class="output-foot"><span style="font-size:11px;color:var(--text-soft)">Editable</span><button class="copy-btn" id="cp125" onclick="doCopy('ta125','cp125')">Copy</button></div></div>'+
+      '</div>'+
+      '<div style="padding:12px 14px"><div class="label" style="margin-bottom:8px">Keyword Coverage</div><div class="kw-used-list" id="kwUsage"></div></div>'+
     '</div>';
 }
 
 function parseKw() {
-  var raw = (document.getElementById('kwInput') || {}).value || '';
-  var seen = {};
-  keywords = raw.split(/[\n,]+/).map(function(s){return s.trim();}).filter(function(s){
-    if (!s || seen[s]) return false; seen[s]=true; return true;
-  });
+  var raw = (document.getElementById('kwInput')||{}).value||'', seen={};
+  keywords = raw.split(/[
+,]+/).map(function(s){return s.trim();}).filter(function(s){ if(!s||seen[s]) return false; seen[s]=true; return true; });
   var el = document.getElementById('kwTags');
   if (el) el.innerHTML = keywords.map(function(k,i){
-    var cls = i<10?'p1':i<20?'p2':'';
-    return '<span class="kw-tag ' + cls + '"><span class="kw-rank">#' + (i+1) + '</span>' + k + '</span>';
+    return '<span class="kw-tag '+(i<10?'p1':i<20?'p2':'')+'"><span class="kw-rank">#'+(i+1)+'</span>'+k+'</span>';
   }).join('');
 }
-
 function handleFile(e) {
-  var file = e.target.files[0]; if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var lines = ev.target.result.split(/\r?\n/).map(function(l){return l.split(/[,\t]/)[0].trim();}).filter(Boolean);
-    var el = document.getElementById('kwInput');
-    if (el) { el.value = lines.join('\n'); parseKw(); }
+  var file=e.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var lines=ev.target.result.split(/
+?
+/).map(function(l){return l.split(/[,	]/)[0].trim();}).filter(Boolean);
+    var el=document.getElementById('kwInput'); if(el){el.value=lines.join('
+');parseKw();}
   };
   reader.readAsText(file);
 }
-
 function generateTitles() {
-  var p = PRODUCTS[selectedIdx];
-  var meta = _meta[p.asin] || {};
-  var btn = document.getElementById('genBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
-  var rules = [];
-  if ((document.getElementById('r-brand')||{}).checked) rules.push('Marke "Edurino" muss als erstes erscheinen');
-  if ((document.getElementById('r-age')||{}).checked) rules.push('Altersangabe einschliessen (z.B. "ab 4 Jahren")');
-  if ((document.getElementById('r-natural')||{}).checked) rules.push('Natuerliches, fliessiges Deutsch - keine Keyword-Liste');
-  if ((document.getElementById('r-nokw')||{}).checked) rules.push('Kein unnatuerliches Keyword-Stuffing');
-  if ((document.getElementById('r-usp')||{}).checked) rules.push('Staerksten Produkt-USP nach der Marke');
-  if ((document.getElementById('r-gender')||{}).checked) rules.push('Geschlechtsneutrale deutsche Sprache');
-  var custom = ((document.getElementById('customRule')||{}).value||'').trim();
-  if (custom) rules.push(custom);
-  var kwList = keywords.slice(0,30).map(function(k,i){return (i+1)+'. '+k;}).join('\n');
-
-  var prompt = 'Du bist ein Amazon DE Listing-Texter spezialisiert auf Kinder-Lernspielzeug.\n\nPRODUKT:\n- ASIN: ' + p.asin + ' | SKU: ' + p.sku + '\n- Aktueller Titel: ' + (p.title||'Unbekannt') + '\n- Marke: Edurino\n- Altersgruppe: ' + (meta.age_range||'ab 4 Jahren') + '\n- Kategorie: ' + (meta.category||'Lernspielzeug / Digitales Lernspiel') + '\n- Produktmerkmale: ' + ((meta.key_features||[]).join(', ')||'nicht verfuegbar') + '\n\nSUCHBEGRIFFE (nach Prioritaet gerankt - #1 = wichtigster):\n' + (kwList||'Keine angegeben.') + '\n\nTITELREGELN:\n' + rules.map(function(r){return '- '+r;}).join('\n') + '\n\nAUFGABE: Generiere zwei optimierte deutsche Amazon DE Titel.\nGib NUR dieses JSON-Objekt zurueck (kein Markdown):\n{"title_75":"...","title_125":"...","keywords_used":["kw1"],"keywords_unused":["kw2"]}\n\nZEICHENLIMITS (genau zaehlen!):\n- title_75: max. 75 Zeichen\n- title_125: max. 125 Zeichen\n\nBeide Titel muessen auf Deutsch sein. title_125 erweitert title_75 mit mehr Keywords.';
-
-  fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6", max_tokens: 1000,
-      system: "Du bist ein Amazon DE Listing-Texter. Antworte nur mit validem JSON ohne Markdown.",
-      messages: [{ role: "user", content: prompt }]
-    })
-  }).then(function(r){return r.json();}).then(function(data) {
-    var text = data.content.map(function(b){return b.type==='text'?b.text:'';}).join('').replace(/```json|```/g,'').trim();
-    var parsed = {};
-    try { parsed = JSON.parse(text); } catch(e) {
-      var m = text.match(/\{[\s\S]*\}/); if (m) try { parsed = JSON.parse(m[0]); } catch(e2){}
-    }
-    generatedTitles.t75 = (parsed.title_75||'').substring(0,80);
-    generatedTitles.t125 = (parsed.title_125||'').substring(0,130);
-    document.getElementById('outputPanel').style.display = '';
-    var ta75 = document.getElementById('ta75'); if (ta75) { ta75.value = generatedTitles.t75; updateCC('ta75','c75',75); }
-    var ta125 = document.getElementById('ta125'); if (ta125) { ta125.value = generatedTitles.t125; updateCC('ta125','c125',125); }
-    var ku = document.getElementById('kwUsage');
-    if (ku) ku.innerHTML =
-      (parsed.keywords_used||[]).map(function(k){return '<span class="kw-used">&#10003; '+k+'</span>';}).join('') +
-      (parsed.keywords_unused||[]).map(function(k){return '<span class="kw-unused">'+k+'</span>';}).join('');
-    if (btn) { btn.disabled = false; btn.textContent = '\u2726 Deutsche Titel generieren'; }
-  }).catch(function() { alert('Generierung fehlgeschlagen. Bitte erneut versuchen.'); if (btn) { btn.disabled = false; btn.textContent = '\u2726 Deutsche Titel generieren'; } });
+  alert('Title generation requires the Claude API. Please open this tool inside Claude.ai to use this feature.');
 }
-
-function ccls(len, max) { if (!len) return ''; if (len <= max*0.9) return 'ok'; if (len <= max) return 'warn'; return 'over'; }
-function updateCC(taId, cId, max) {
-  var ta = document.getElementById(taId); var c = document.getElementById(cId); if (!ta||!c) return;
-  var len = ta.value.length;
-  c.textContent = len+'/'+max; c.className = 'char-counter ' + ccls(len,max);
-  if (taId==='ta75') generatedTitles.t75=ta.value;
-  if (taId==='ta125') generatedTitles.t125=ta.value;
+function updateCC(taId,cId,max){
+  var ta=document.getElementById(taId),c=document.getElementById(cId); if(!ta||!c) return;
+  var len=ta.value.length; c.textContent=len+'/'+max; c.className='char-counter '+ccls(len,max);
 }
-function doCopy(taId, btnId) {
-  var ta=document.getElementById(taId); var btn=document.getElementById(btnId); if(!ta||!btn) return;
+function doCopy(taId,btnId){
+  var ta=document.getElementById(taId),btn=document.getElementById(btnId); if(!ta||!btn) return;
   navigator.clipboard.writeText(ta.value).then(function(){
-    btn.textContent='Copied \u2713'; btn.classList.add('copied');
-    setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('copied'); },2000);
+    btn.textContent='Copied ✓'; btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='Copy';btn.classList.remove('copied');},2000);
   });
 }
-renderTable();
-renderTable();
 
-var SQP_DATA = {"Brand":{"asin":"All ASINs","leaderboard":[["lego",7227106],["barbie",2002296],["spielzeug",1411919],["playmobil",1285456],["jahre",1277188],["ab",1209115],["ninjago",1031858],["tonie",984973],["m\u00e4dchen",956970],["spiele",868907],["figuren",859597],["uno",855860],["schult\u00fcte",682572],["schleich",673903],["wasserbomben",618191],["tiptoi",617130],["puppe",570590],["paw",550441],["patrol",550441],["brettspiele",547090],["beyblade",518770],["x",518770],["junge",498721],["bluey",495429],["kinder",493065],["einschulung",469453],["toniebox",456066],["disney",453288],["high",443753],["4",404392],["city",385714],["tonies",379888],["monster",377046],["hot",373668],["wheels",373668],["2",362776],["sorgenfresser",362696],["6",346697],["baby",343126],["pokemon",342138],["tauchspielzeug",338061],["spiel",336795],["3",326248],["meerjungfrau",304242],["edurino",289820],["und",286360],["born",278626],["dobble",276042],["tablet",260848],["bibi",260232],["tina",251543],["pocket",249348],["polly",246687],["5",244664],["peppa",226682],["wutz",226682],["f\u00fcllung",224561],["tamagotchi",220155],["geschenk",201233],["leo",194656]]},"DE-F012":{"asin":"B0D2HXWY11","leaderboard":[["playmobil",17687108],["tonie",14690245],["tonies",12305784],["toniebox",9412506],["figuren",9283784],["bluey",6447665],["kinder",5586521],["schlitten",5513394],["h\u00f6rfiguren",4466370],["edurino",4009623],["ab",2481296],["2",2457418],["4",2296314],["jahre",1300785],["jahren",1079948],["spiele",1078255],["figur",882680],["kekz",489844],["audiochip",489844],["alexa",446762],["kids",446762],["tiptoi",368454],["starterset",348846],["gesellschaftsspiele",308342],["kinderspiele",291930],["looping",229055],["louie",229055],["spiel",229055],["lernspiele",209354],["stift",200782],["pumuckl",190188],["tasche",109472],["kinderspielzeug",103564],["5",96892],["sch\u00fcttel",86266],["den",86266],["apfelbaum",86266],["6",84211],["konzentrationsspiele",73127],["f\u00fcr",73127],["sami",61464],["leseb\u00e4r",61464],["zoomania",56817],["tablet",40742],["ollie",40077],["yuki",29552],["enduro",22792],["mika",20644],["englisch",20599],["ari",18970],["leo",12332],["asa",12102],["set",12086],["uhr",11840],["alex",10062],["luca",9739],["olli",6555],["lernen",6177],["3",6137],["gef\u00fchle",5929]]},"DE-F011":{"asin":"B0D9BHLPY6","leaderboard":[["alexa",32006016],["playmobil",18339600],["tonie",15814998],["tonies",12711753],["figuren",9299924],["lego",8031363],["city",8031363],["toniebox",6955087],["bluey",6447665],["schleich",4564030],["h\u00f6rfiguren",4466370],["edurino",3589191],["baby",3248494],["born",3248494],["dinosaurier",2588416],["spielzeug",2588416],["pferde",2328521],["eldrador",2235509],["kosmos",2148060],["alex",2087412],["sorgenfresser",1824056],["ab",1263643],["4",1119214],["kreativ",1097298],["jahren",1079962],["spiele",1078255],["novelmore",652492],["figur",636169],["kids",446762],["clever",405968],["starterset",321243],["kinder",240791],["lernen",209993],["uhr",203096],["jahre",120262],["5",107378],["lernspiele",91227],["zoomania",68929],["f\u00fcr",47200],["6",37051],["uhrzeit",33366],["yuki",29552],["ari",26387],["enduro",22997],["englisch",20838],["mika",20644],["tiptoi",18358],["robin",17056],["ollie",12650],["asa",12102],["ern\u00e4hrung",11441],["edurini",10305],["die",9034],["gesunde",7416],["olli",4134],["pferd",3864],["stufe",2986],["2",2986],["edulino",673],["jahreszeiten",588]]},"DE-F008":{"asin":"B0CQ8QY83V","leaderboard":[["tonie",14633428],["tonies",12639644],["figuren",10310560],["toniebox",9412506],["tiptoi",6477922],["h\u00f6rfiguren",4466370],["edurino",3775245],["stift",2500832],["2",2472809],["lego",1040214],["vorschule",693027],["lernen",664144],["figur",634874],["lesen",402868],["ab",377186],["jahre",361486],["5",349183],["jungen",346423],["starterset",315876],["buchstaben",275447],["abc",166893],["1.",119834],["klasse",119834],["mika",97786],["stufe",21862],["robin",20520],["englisch",18338],["enduro",17424],["yuki",16870],["ollie",12650],["4",10682],["6",9391],["3",7157],["zahlen",7070],["schreiben",5932],["1",5783],["edurini",3885],["amazon",2908],["7",2558],["und",2219],["deutsch",1533],["fuchs",1364],["erstes",954],["erste",238],["\"buchstaben",33],["&",33],["schreiben\"",33],["-",33]]},"DE-F003":{"asin":"B07H44RYTZ","leaderboard":[["lego",106870818],["pokemon",25649668],["karten",25649668],["barbie",20033587],["tonie",16926244],["kinder",14396352],["ostergeschenke",14314244],["tonies",13269408],["figuren",12003002],["toniebox",9655268],["city",8031363],["tiptoi",7748904],["hot",5135308],["wheels",5135308],["h\u00f6rfiguren",4466370],["edurino",3478021],["baby",3248494],["born",3248494],["kinetic",2672526],["sand",2672526],["ab",2660709],["2",2459302],["stift",2300050],["jahre",1828215],["spiele",1772731],["4",1701360],["figur",1463619],["spielzeug",1413698],["kreativ",1396976],["6",1204733],["jahren",1078641],["monopoly",903358],["junior",903358],["tip",826992],["toi",826992],["buch",801147],["peppa",753671],["wutz",753671],["toni",630150],["little",529542],["live",529542],["pets",529542],["jungen",500865],["kekz",489844],["audiochip",489844],["gr\u00fcffelo",435332],["clever",405968],["englisch",330383],["starterset",316375],["toniefiguren",208469],["toniefigur",206067],["my",181692],["first",181692],["pj",159162],["masks",159162],["musik",125571],["lernen",96968],["bluey",75832],["english",42959],["mika",20644]]},"DE-F020":{"asin":"B0GFBXYWLB","leaderboard":[["brettspiele",18490625],["hot",5135308],["wheels",5135308],["ab",5111354],["badewannenspielzeug",4565294],["jahre",4021658],["edurino",3789295],["spiele",3392694],["4",3290950],["kinder",2492878],["baby",2244859],["born",2244859],["zubeh\u00f6r",2244859],["6",1818223],["outdoor",1593571],["f\u00fcr",1529861],["figuren",1133629],["jahren",1079948],["pets",869980],["bastelset",772648],["ari",764969],["spielzeug",754845],["gesellschaftsspiele",648357],["figur",635433],["little",529542],["live",529542],["junge",471597],["lego",466250],["clever",405968],["tonies",405968],["alive",340438],["starterset",315876],["m\u00e4dchen",219538],["stift",200782],["mensch",190369],["\u00e4rgere",190369],["dich",190369],["nicht",190369],["spiel",162532],["playmobil",100522],["osterei",100522],["badespielzeug",100010],["haba",90102],["scruff",62787],["a",62787],["luvs",62787],["sandspielzeug",59269],["yuki",31754],["mika",20644],["ern\u00e4hrung",18437],["englisch",18338],["enduro",17424],["robin",17056],["ollie",14566],["asa",13430],["gesunde",13425],["leo",12332],["luca",9739],["gef\u00fchle",5929],["superhelden",5578]]},"PBL-P":{"asin":"B0BLWB7SWK","leaderboard":[["tablet",35257920],["kinder",9656049],["spielzeug",7782197],["stift",7345131],["stifte",6662034],["edurino",3802308],["3d",2442915],["tiptoi",2442501],["ab",1675719],["jahre",1661910],["3",1518561],["kids",1283416],["figuren",1086251],["kindertablet",1046820],["amazon",822506],["figur",587423],["f\u00fcr",585212],["tip",347865],["toi",347865],["starterset",336545],["lernspiele",228820],["4",131936],["6",110693],["tasche",109472],["d",85470],["4.",65422],["generation",65422],["bookii",65284],["-",47629],["ersatzspitzen",30264],["mit",29400],["ladestation",29400],["zubeh\ufffd\ufffdr",15920],["f\ufffd\ufffdr",15920],["tablets",15920],["leo",12332],["set",12086],["enduro",9136],["ersatzspitze",5602],["tabletstift",4832],["bundle",4766],["pink",4602],["spitze",3627],["ergonomisch",2884],["ipad",2611],["eingabestift",2536],["rosa",2353],["lila",1872],["fire",1817],["ergonomischer",1441],["gr\u00fcn",1405],["ersatzstift",1168],["edutiono",1090],["pen",926],["efurino",794],["rot",793],["edurini",738],["magischer",624],["edurinostift",524],["ersatz",264]]},"DE-F009":{"asin":"B0CLB9BCRH","leaderboard":[["edurino",4039299],["leo",2878564],["figur",637118],["starterset",354373],["figuren",237076],["stift",200782],["tasche",109472],["zoomania",67684],["ab",48533],["tablet",40742],["yuki",30003],["4",27881],["ari",26387],["enduro",22792],["mika",20644],["jahre",19642],["englisch",18338],["robin",17056],["gef\u00fchle",13443],["asa",13430],["ollie",12650],["set",12086],["6",11084],["edurini",10305],["alex",10062],["luca",9739],["gesunde",7416],["ern\u00e4hrung",7416],["3",6137],["efurino",6054],["bundle",4766],["und",4731],["eduriono",4259],["tonie",3803],["5",3369],["stufe",2998],["1",2998],["pinguin",2964],["freundschaft",2668],["soziales",2668],["7",2558],["k\u00f6rperteile",2539],["malen",2514],["meine",2224],["kreativit\u00e4t",2063],["logisches",1914],["denken",1914],["jahren",1693],["eduro",1668],["welt",1328],["der",1328],["tiere",1328],["amazon",829],["leopard",700],["\"kreativit\u00e4t",451],["&",451],["gef\u00fchl",179],["l\u00f6we",174]]},"DE-F021":{"asin":"B0GP8MFM6V","leaderboard":[["spielzeug",6349107],["edurino",3384139],["figuren",1101244],["figur",987959],["ab",774908],["jahren",647655],["spiele",647650],["5",647650],["kreativ",562824],["starterset",315876],["werkzeug",210248],["kinder",210248],["jahre",148841],["4",148075],["lernspiele",118127],["yuki",59214],["kind",25777],["robin",19541],["juki",9785],["malen",5834],["superhelden",5597],["stufe",4683],["6",4441],["und",3977],["kunst",3670],["kreativit\u00e4t",2917],["englisch",2500],["3",2485],["2",2244],["gestalten",1817],["super",1247],["neue",845],["ari",635],["katze",608],["8",514],["zum",472],["lernen",472],["meine",361],["k\u00f6rperteile",361],["hero",352],["superheld",161],["\"kunst",115],["gestalten\"",108],["schule",82],["superheldin",63],["edurinoyuki",56],["neu",50],["leo",34],["1",34],["&",24],["yuka",21],["yukie",18],["asa",14],["gestalte",13],["mit",12],["stift",12],["jukki",5],["superyuki",5],["7",5],["amazon",4]]},"DE-F013":{"asin":"B0DDT9655B","leaderboard":[["barbie",20033587],["playmobil",18449141],["tonie",15702475],["tonies",12723231],["figuren",10487038],["toniebox",10330376],["schleich",10014938],["paw",8549611],["patrol",8549611],["bluey",8174285],["tiptoi",6477922],["h\u00f6rfiguren",4549956],["edurino",3736164],["polly",2859537],["pocket",2859537],["pferde",2804226],["ab",2711796],["stift",2500832],["2",2457621],["tiere",2057194],["spiele",1892450],["spielzeug",1809950],["jahren",1727598],["figur",1702884],["4",1259093],["spiel",1152996],["jahre",965968],["5",788476],["lotti",697469],["karotti",697469],["1",676092],["toni",630150],["asa",622471],["tigerbox",607037],["6",494568],["kekz",489844],["audiochip",489844],["gesellschaftsspiele",340015],["starterset",321243],["kreativ",299677],["disney",223004],["giraffenaffen",182000],["7",166546],["pj",159162],["masks",159162],["zicke",153359],["zacke",153359],["h\u00fchnerkacke",153359],["zoomania",56817],["ari",34174],["enduro",22792],["englisch",18338],["robin",17056],["leo",12332],["gesunde",7416],["ern\u00e4hrung",7416],["3",5372],["natur",4930],["welt",2865],["der",2865]]},"DE-F015":{"asin":"B0FFNHXLBV","leaderboard":[["playmobil",17687108],["tonie",16726507],["tonies",12639644],["figuren",9888102],["toniebox",9412506],["tiptoi",5843173],["ab",5719349],["jahre",5551077],["h\u00f6rfiguren",4466370],["spielzeug",4409986],["edurino",3737483],["2",3328083],["leo",2984605],["paw",1989505],["patrol",1989505],["3",1898928],["spiel",1823405],["spiele",1610137],["5",1578747],["figur",1462950],["kreativ",1396976],["6",1320607],["junge",1028302],["dobble",798888],["quickstop",756190],["starterset",653032],["jahren",649343],["toni",630150],["geschenk",595399],["edubini",588892],["4",484498],["schleich",440221],["dino",440221],["unicorn",380011],["academy",380011],["hubelino",362091],["kugelbahn",362091],["kekz",347500],["kinder",343515],["gesellschaftsspiele",340015],["balanciersteine",338354],["f\u00fcr",338354],["stift",200782],["7",166546],["pj",159162],["masks",159162],["reisespiele",146343],["vtech",133218],["marble",133218],["rush",133218],["was",112092],["und",109074],["lausemaus",107480],["bibi",106264],["tina",106264],["oktonauten",99322],["pumuckl",95957],["lernspiele",91227],["ist",56046],["kind",38695]]},"DE-F004":{"asin":"B0BK9FT32K","leaderboard":[["lego",106643278],["brettspiele",18274911],["tonie",14805264],["kinder",14360794],["ostergeschenke",14063926],["tonies",12389371],["figuren",10248346],["city",8031363],["h\u00f6rfiguren",4549956],["edurino",3600916],["ab",3508441],["jahre",2714981],["4",2274910],["6",1232420],["figur",1165788],["jahren",1079948],["spiele",1078255],["spielzeug",660027],["gesellschaftsspiele",648357],["5",594216],["jungen",500865],["kekz",489844],["audiochip",489844],["geschenk",410179],["junge",410179],["toni",358760],["starterset",325880],["experimente",296868],["f\u00fcr",296868],["kinderspiele",291930],["m\u00e4dchen",180668],["pj",159162],["masks",159162],["lernspiele",118127],["duolingo",110454],["ari",35188],["yuki",29552],["mika",20644],["englisch",20220],["enduro",17494],["minopia",17398],["luca",14331],["ollie",12650],["asa",12102],["stufe",9142],["gesunde",7416],["ern\u00e4hrung",7416],["robin",4820],["luka",4781],["1",4774],["eduino",4732],["eduriono",4259],["edurini",3885],["denken",3218],["logisches",3211],["amazon",2908],["vorschule",2852],["und",2774],["3",2485],["coding",2479]]},"DE-F005":{"asin":"B0C2ZR48CR","leaderboard":[["playmobil",19905332],["tonie",16318173],["kost\u00fcm",14654965],["tonies",12639644],["figuren",10636286],["ab",6479852],["bluey",6447665],["schleich",5920665],["kost\u00fcme",5526994],["tiptoi",5506016],["und",5116190],["bibi",5114126],["tina",5114126],["jahre",4539401],["h\u00f6rfiguren",4466370],["spielzeug",3746193],["edurino",3505871],["m\u00e4dchen",2905578],["kinetic",2672526],["sand",2672526],["4",2642008],["spiele",2634262],["3",2627535],["jahren",2453797],["lego",2099333],["disney",2099333],["paw",1866804],["patrol",1866804],["figur",1485596],["kreativ",1419893],["malen",1157855],["2",868126],["tip",797568],["toi",797568],["5",647650],["geschenk",467816],["brettspiele",379094],["toni",358760],["starterset",324317],["kinderspiele",291930],["haba",180514],["8",163380],["spiel",162532],["pj",159162],["masks",159162],["lernspiele",118127],["6",69273],["junge",67599],["yuki",54634],["juki",42651],["zoomania",35966],["zum",20085],["selbst",20085],["bespielen",20085],["enduro",17424],["ollie",12650],["set",12086],["luca",9739],["efurino",6054],["stift",4602]]},"DE-F007":{"asin":"B0CHK42G63","leaderboard":[["lego",108144458],["playmobil",20462216],["barbie",20033587],["tonie",15487074],["tonies",12687518],["figuren",11280384],["ninjago",10306204],["hot",5135308],["wheels",5135308],["monster",4574698],["high",4574698],["h\u00f6rfiguren",4514244],["edurino",3515274],["baby",3248494],["born",3248494],["ab",3170095],["spielzeug",2839267],["4",2408265],["m\u00e4dchen",2218224],["paw",1866804],["patrol",1866804],["jahre",1524350],["figur",1520830],["toni",1202668],["jahren",1079953],["spiele",1078255],["ari",763765],["krankenhaus",556885],["puzzle",538835],["6",502558],["jungen",500865],["kekz",489844],["audiochip",489844],["junge",471597],["starterset",329684],["kreativ",299677],["kinderspiele",291930],["toniefiguren",208469],["toniefigur",206067],["peppa",151446],["wutz",151446],["was",112092],["2",95902],["5",91511],["lernspiele",91227],["3",74116],["conni",57869],["ist",56046],["enduro",23086],["englisch",18338],["robin",17056],["yuki",16870],["ollie",12650],["gesunde",12221],["ern\u00e4hrung",12221],["asa",12102],["alex",10062],["efurino",6054],["gef\u00fchle",5929],["k\u00f6rperteile",4986]]},"DE-AMZ-05":{"asin":"B0DYK9SBLM","leaderboard":[["lego",98742486],["tonie",16067818],["tonies",12639644],["toniebox",10087612],["figuren",9570790],["tiptoi",9533129],["ab",6267113],["jahre",5930055],["h\u00f6rfiguren",4466370],["4",3826539],["edurino",3781918],["2",3325097],["stift",2848697],["tablet",2835755],["spielzeug",2662305],["kinder",2257068],["paw",1866804],["patrol",1866804],["tip",1466387],["toi",1466387],["geschenk",1332580],["m\u00e4dchen",1332580],["5",1314194],["spiele",1264847],["jahren",1174745],["kreativ",1097298],["buch",1054177],["kindertablet",1046820],["3",1005634],["kids",980799],["figur",947869],["starterset",780778],["6",716586],["1",675107],["kekz",489844],["audiochip",489844],["gesellschaftsspiele",478846],["junge",471597],["lernspiele",439128],["amazon",414944],["toni",358760],["globus",343929],["box",337091],["kinderspiele",291930],["spiel",284814],["duplo",280689],["b\u00fccher",220305],["brettspiele",215714],["minil\u00fck",198188],["montessori",192030],["dobble",122283],["tasche",109472],["vtech",108469],["lerncomputer",108469],["fire",103128],["haba",90102],["zahlen",34329],["lernen",34329],["yuki",21818],["set",19325]]},"DE-F016":{"asin":"B0FFNNMKJT","leaderboard":[["tonie",14633428],["tonies",12305784],["figuren",9282851],["h\u00f6rfiguren",4466370],["edurino",3841906],["ab",1109877],["4",1096235],["jahren",1079948],["spiele",1078255],["figur",633559],["kekz",489844],["audiochip",489844],["starterset",329684],["lernen",275625],["buchstaben",272747],["stift",200782],["mika",97853],["ari",34174],["robin",28635],["enduro",22792],["stufe",22256],["englisch",18338],["ollie",12650],["asa",12102],["jahre",12046],["luca",11863],["2",11543],["6",11181],["gesunde",10518],["ern\u00e4hrung",10518],["alex",10062],["3",7920],["lesen",7514],["uhr",6177],["efurino",6054],["geometrie",5689],["superhelden",5578],["olli",4134],["amazon",4076],["edurini",3885],["schreiben",3439],["1",3339],["und",3290],["abc",2853],["7",2558],["s\u00e4tze",2325],["w\u00f6rter",1961],["deutsch",1842],["mathe",1234],["sprachf\u00f6rderung",884],["zahlenmuster",843],["schule",774],["superheld",665],["super",545],["&",143],["\u201cw\u00f6rter",26],["s\u00e4tze\u201d",26],["hero",11]]},"DE-F002":{"asin":"B09ZY95BRH","leaderboard":[["lego",98145665],["tonie",15071736],["ostergeschenke",14063926],["kinder",14063926],["tonies",12305784],["figuren",9858293],["hot",5135308],["wheels",5135308],["h\u00f6rfiguren",4466370],["edurino",3472755],["robin",1250341],["ab",1144580],["4",1137447],["jahren",1078259],["spiele",1078255],["figur",1014056],["starterset",324317],["kreativ",319762],["toni",271391],["toniebox",242763],["zahlen",112451],["duolingo",110454],["lernen",105202],["sale",60676],["lochkasten",60452],["k\u00f6lner",60452],["lernspielverlag",60452],["conni",57869],["stufe",23829],["zum",20085],["selbst",20085],["bespielen",20085],["ari",18970],["enduro",17620],["yuki",16870],["1",13537],["jahre",11649],["6",9391],["rechnen",8922],["2",7807],["mathe",7291],["mika",7142],["z\u00e4hlen",4254],["edurini",3885],["geometrie",3410],["vorschule",3149],["und",2627],["3",2485],["buchstaben",1594],["zahlenmuster",1534],["mengen",1049],["erstes",914],["erste",690],["edulino",673],["waschb\u00e4r",659],["endrino",340],["bis",307],["10",307],["formen",280],["&",103]]},"DE-F001":{"asin":"B09ZY92SHQ","leaderboard":[["tonie",14822120],["tonies",12305784],["toniebox",9412506],["figuren",9407095],["h\u00f6rfiguren",4466370],["edurino",3528523],["2",2461840],["figur",997484],["5",568912],["jahre",471817],["toni",358760],["lernen",354572],["starterset",318617],["ab",307818],["spielzeug",285232],["jungen",285232],["m\u00e4dchen",280310],["buchstaben",275006],["geschenke",235839],["musik",125571],["f\u00fcr",106485],["mika",97860],["lesen",93357],["vorschule",76074],["und",65541],["bibi",63120],["tina",63120],["j\u00e4hrige",62014],["sami",61464],["leseb\u00e4r",61464],["geschenk",44471],["j\u00e4hriges",44471],["tablet",40742],["stufe",22721],["enduro",17424],["1",16593],["tiptoi",10016],["4",9825],["luca",9739],["6",9391],["ari",7416],["gesunde",7416],["ern\u00e4hrung",7416],["schreiben",6344],["edurini",3962],["abc",3558],["robin",2334],["englisch",2262],["3",1785],["fuchs",1751],["deutsch",1485],["zahlen",1484],["erstes",1470],["edrino",706],["elektronisch",645],["erste",238],["laute",141],["edurono",62],["&",41],["mit",27]]},"DE-F006":{"asin":"B0CB4SVN6P","leaderboard":[["tonie",14633428],["schleich",13609284],["tonies",12589067],["figuren",10181624],["bluey",6447665],["h\u00f6rfiguren",4749652],["edurino",3519879],["eldrador",2894548],["m\u00e4dchen",2403406],["playmobil",2218224],["tiere",1770285],["ab",1571336],["horse",1465445],["club",1465445],["dinosaurier",1367060],["4",1097825],["jahren",1078284],["spiele",1078255],["figur",1010515],["asa",624485],["starterset",326209],["jahre",274718],["6",273785],["toniebox",242763],["1",203107],["jahr",199696],["set",195814],["spielzeug",185182],["yuki",31150],["ari",28089],["enduro",17582],["ern\u00e4hrung",13143],["gesunde",9119],["natur",7367],["stufe",5080],["eduriono",4259],["unsere",2606],["welt",2004],["der",2004],["2",1669],["eisb\u00e4r",1448],["fuchs",1364],["luca",1201],["und",471],["luka",382],["b\u00e4r",328],["edolino",290],["bundle",282],["stift",230],["edurinoasa",57],["3",29],["lernfigur",20],["aua",20],["amazon",12],["deutsch",12],["edu",8],["eno",8]]},"DE-AMZ-01":{"asin":"B0CHJHHM8K","leaderboard":[["tonie",16067818],["tonies",12740562],["lego",10521119],["toniebox",10330376],["figuren",10070960],["ninjago",9998793],["spielzeug",9795651],["tiptoi",8529884],["jahre",7677040],["ab",6766516],["bluey",6447665],["h\u00f6rfiguren",4466370],["edurino",3635238],["6",3253321],["4",3224796],["5",2942929],["stift",2848697],["2",2558336],["spiele",2420382],["geschenk",2200293],["paw",1866804],["patrol",1866804],["m\u00e4dchen",1758831],["jahren",1725905],["junge",1544463],["vtech",1467131],["jungen",1415820],["hot",1324782],["wheels",1324782],["bahn",1324782],["tip",1268269],["toi",1268269],["tablet",1260997],["kinder",1213054],["kreativ",1097298],["kinderspiele",1008422],["figur",946182],["buch",923984],["monopoly",903358],["junior",903358],["xoomy",751071],["starterset",710696],["l\u00fck",676712],["1",675107],["gesellschaftsspiele",648357],["toni",630150],["tigerbox",607037],["3",561382],["geschenke",491063],["lernspiele",463937],["kasten",377658],["box",337091],["f\u00fcr",316200],["mini",299053],["spiel",275642],["j\u00e4hrige",215283],["lerncomputer",209512],["montessori",192030],["zicke",153359],["zacke",153359]]}};
+/* ── SQP DATA (baked in from raw spreadsheet) ───────────────────────────── */
+var SQP_DATA = {"Brand":{"asin":"All ASINs \u2014 Brand Level","leaderboard":[["lego",7227106],["barbie",2002296],["spielzeug",1411919],["playmobil",1285456],["jahre",1277188],["ab",1209115],["ninjago",1031858],["tonie",984973],["m\u00e4dchen",956970],["spiele",868907],["figuren",859597],["uno",855860],["schult\u00fcte",682572],["schleich",673903],["wasserbomben",618191],["tiptoi",617130],["puppe",570590],["paw",550441],["patrol",550441],["brettspiele",547090],["beyblade",518770],["x",518770],["junge",498721],["bluey",495429],["kinder",493065],["einschulung",469453],["toniebox",456066],["disney",453288],["high",443753],["4",404392],["city",385714],["tonies",379888],["monster",377046],["hot",373668],["wheels",373668],["2",362776],["sorgenfresser",362696],["6",346697],["baby",343126],["pokemon",342138],["tauchspielzeug",338061],["spiel",336795],["3",326248],["meerjungfrau",304242],["edurino",289820],["und",286360],["born",278626],["dobble",276042],["tablet",260848],["bibi",260232],["tina",251543],["pocket",249348],["polly",246687],["5",244664],["peppa",226682],["wutz",226682],["f\u00fcllung",224561],["tamagotchi",220155],["geschenk",201233],["leo",194656]]},"DE-F012":{"asin":"B0D2HXWY11","leaderboard":[["playmobil",17687108],["tonie",14690245],["tonies",12305784],["toniebox",9412506],["figuren",9283784],["bluey",6447665],["kinder",5586521],["schlitten",5513394],["h\u00f6rfiguren",4466370],["edurino",4009623],["ab",2481296],["2",2457418],["4",2296314],["jahre",1300785],["jahren",1079948],["spiele",1078255],["figur",882680],["kekz",489844],["audiochip",489844],["alexa",446762],["kids",446762],["tiptoi",368454],["starterset",348846],["gesellschaftsspiele",308342],["kinderspiele",291930],["looping",229055],["louie",229055],["spiel",229055],["lernspiele",209354],["stift",200782],["pumuckl",190188],["tasche",109472],["kinderspielzeug",103564],["5",96892],["sch\u00fcttel",86266],["den",86266],["apfelbaum",86266],["6",84211],["konzentrationsspiele",73127],["f\u00fcr",73127],["sami",61464],["leseb\u00e4r",61464],["zoomania",56817],["tablet",40742],["ollie",40077],["yuki",29552],["enduro",22792],["mika",20644],["englisch",20599],["ari",18970],["leo",12332],["asa",12102],["set",12086],["uhr",11840],["alex",10062],["luca",9739],["olli",6555],["lernen",6177],["3",6137],["gef\u00fchle",5929]]},"DE-F011":{"asin":"B0D9BHLPY6","leaderboard":[["alexa",32006016],["playmobil",18339600],["tonie",15814998],["tonies",12711753],["figuren",9299924],["lego",8031363],["city",8031363],["toniebox",6955087],["bluey",6447665],["schleich",4564030],["h\u00f6rfiguren",4466370],["edurino",3589191],["baby",3248494],["born",3248494],["dinosaurier",2588416],["spielzeug",2588416],["pferde",2328521],["eldrador",2235509],["kosmos",2148060],["alex",2087412],["sorgenfresser",1824056],["ab",1263643],["4",1119214],["kreativ",1097298],["jahren",1079962],["spiele",1078255],["novelmore",652492],["figur",636169],["kids",446762],["clever",405968],["starterset",321243],["kinder",240791],["lernen",209993],["uhr",203096],["jahre",120262],["5",107378],["lernspiele",91227],["zoomania",68929],["f\u00fcr",47200],["6",37051],["uhrzeit",33366],["yuki",29552],["ari",26387],["enduro",22997],["englisch",20838],["mika",20644],["tiptoi",18358],["robin",17056],["ollie",12650],["asa",12102],["ern\u00e4hrung",11441],["edurini",10305],["die",9034],["gesunde",7416],["olli",4134],["pferd",3864],["stufe",2986],["2",2986],["edulino",673],["jahreszeiten",588]]},"DE-F008":{"asin":"B0CQ8QY83V","leaderboard":[["tonie",14633428],["tonies",12639644],["figuren",10310560],["toniebox",9412506],["tiptoi",6477922],["h\u00f6rfiguren",4466370],["edurino",3775245],["stift",2500832],["2",2472809],["lego",1040214],["vorschule",693027],["lernen",664144],["figur",634874],["lesen",402868],["ab",377186],["jahre",361486],["5",349183],["jungen",346423],["starterset",315876],["buchstaben",275447],["abc",166893],["1.",119834],["klasse",119834],["mika",97786],["stufe",21862],["robin",20520],["englisch",18338],["enduro",17424],["yuki",16870],["ollie",12650],["4",10682],["6",9391],["3",7157],["zahlen",7070],["schreiben",5932],["1",5783],["edurini",3885],["amazon",2908],["7",2558],["und",2219],["deutsch",1533],["fuchs",1364],["erstes",954],["erste",238],["\"buchstaben",33],["&",33],["schreiben\"",33],["-",33]]},"DE-F003":{"asin":"B07H44RYTZ","leaderboard":[["lego",106870818],["pokemon",25649668],["karten",25649668],["barbie",20033587],["tonie",16926244],["kinder",14396352],["ostergeschenke",14314244],["tonies",13269408],["figuren",12003002],["toniebox",9655268],["city",8031363],["tiptoi",7748904],["hot",5135308],["wheels",5135308],["h\u00f6rfiguren",4466370],["edurino",3478021],["baby",3248494],["born",3248494],["kinetic",2672526],["sand",2672526],["ab",2660709],["2",2459302],["stift",2300050],["jahre",1828215],["spiele",1772731],["4",1701360],["figur",1463619],["spielzeug",1413698],["kreativ",1396976],["6",1204733],["jahren",1078641],["monopoly",903358],["junior",903358],["tip",826992],["toi",826992],["buch",801147],["peppa",753671],["wutz",753671],["toni",630150],["little",529542],["live",529542],["pets",529542],["jungen",500865],["kekz",489844],["audiochip",489844],["gr\u00fcffelo",435332],["clever",405968],["englisch",330383],["starterset",316375],["toniefiguren",208469],["toniefigur",206067],["my",181692],["first",181692],["pj",159162],["masks",159162],["musik",125571],["lernen",96968],["bluey",75832],["english",42959],["mika",20644]]},"DE-F020":{"asin":"B0GFBXYWLB","leaderboard":[["brettspiele",18490625],["hot",5135308],["wheels",5135308],["ab",5111354],["badewannenspielzeug",4565294],["jahre",4021658],["edurino",3789295],["spiele",3392694],["4",3290950],["kinder",2492878],["baby",2244859],["born",2244859],["zubeh\u00f6r",2244859],["6",1818223],["outdoor",1593571],["f\u00fcr",1529861],["figuren",1133629],["jahren",1079948],["pets",869980],["bastelset",772648],["ari",764969],["spielzeug",754845],["gesellschaftsspiele",648357],["figur",635433],["little",529542],["live",529542],["junge",471597],["lego",466250],["clever",405968],["tonies",405968],["alive",340438],["starterset",315876],["m\u00e4dchen",219538],["stift",200782],["mensch",190369],["\u00e4rgere",190369],["dich",190369],["nicht",190369],["spiel",162532],["playmobil",100522],["osterei",100522],["badespielzeug",100010],["haba",90102],["scruff",62787],["a",62787],["luvs",62787],["sandspielzeug",59269],["yuki",31754],["mika",20644],["ern\u00e4hrung",18437],["englisch",18338],["enduro",17424],["robin",17056],["ollie",14566],["asa",13430],["gesunde",13425],["leo",12332],["luca",9739],["gef\u00fchle",5929],["superhelden",5578]]},"PBL-P":{"asin":"B0BLWB7SWK","leaderboard":[["tablet",35257920],["kinder",9656049],["spielzeug",7782197],["stift",7345131],["stifte",6662034],["edurino",3802308],["3d",2442915],["tiptoi",2442501],["ab",1675719],["jahre",1661910],["3",1518561],["kids",1283416],["figuren",1086251],["kindertablet",1046820],["amazon",822506],["figur",587423],["f\u00fcr",585212],["tip",347865],["toi",347865],["starterset",336545],["lernspiele",228820],["4",131936],["6",110693],["tasche",109472],["d",85470],["4.",65422],["generation",65422],["bookii",65284],["-",47629],["ersatzspitzen",30264],["mit",29400],["ladestation",29400],["zubeh\ufffd\ufffdr",15920],["f\ufffd\ufffdr",15920],["tablets",15920],["leo",12332],["set",12086],["enduro",9136],["ersatzspitze",5602],["tabletstift",4832],["bundle",4766],["pink",4602],["spitze",3627],["ergonomisch",2884],["ipad",2611],["eingabestift",2536],["rosa",2353],["lila",1872],["fire",1817],["ergonomischer",1441],["gr\u00fcn",1405],["ersatzstift",1168],["edutiono",1090],["pen",926],["efurino",794],["rot",793],["edurini",738],["magischer",624],["edurinostift",524],["ersatz",264]]},"DE-F009":{"asin":"B0CLB9BCRH","leaderboard":[["edurino",4039299],["leo",2878564],["figur",637118],["starterset",354373],["figuren",237076],["stift",200782],["tasche",109472],["zoomania",67684],["ab",48533],["tablet",40742],["yuki",30003],["4",27881],["ari",26387],["enduro",22792],["mika",20644],["jahre",19642],["englisch",18338],["robin",17056],["gef\u00fchle",13443],["asa",13430],["ollie",12650],["set",12086],["6",11084],["edurini",10305],["alex",10062],["luca",9739],["gesunde",7416],["ern\u00e4hrung",7416],["3",6137],["efurino",6054],["bundle",4766],["und",4731],["eduriono",4259],["tonie",3803],["5",3369],["stufe",2998],["1",2998],["pinguin",2964],["freundschaft",2668],["soziales",2668],["7",2558],["k\u00f6rperteile",2539],["malen",2514],["meine",2224],["kreativit\u00e4t",2063],["logisches",1914],["denken",1914],["jahren",1693],["eduro",1668],["welt",1328],["der",1328],["tiere",1328],["amazon",829],["leopard",700],["\"kreativit\u00e4t",451],["&",451],["gef\u00fchl",179],["l\u00f6we",174]]},"DE-F021":{"asin":"B0GP8MFM6V","leaderboard":[["spielzeug",6349107],["edurino",3384139],["figuren",1101244],["figur",987959],["ab",774908],["jahren",647655],["spiele",647650],["5",647650],["kreativ",562824],["starterset",315876],["werkzeug",210248],["kinder",210248],["jahre",148841],["4",148075],["lernspiele",118127],["yuki",59214],["kind",25777],["robin",19541],["juki",9785],["malen",5834],["superhelden",5597],["stufe",4683],["6",4441],["und",3977],["kunst",3670],["kreativit\u00e4t",2917],["englisch",2500],["3",2485],["2",2244],["gestalten",1817],["super",1247],["neue",845],["ari",635],["katze",608],["8",514],["zum",472],["lernen",472],["meine",361],["k\u00f6rperteile",361],["hero",352],["superheld",161],["\"kunst",115],["gestalten\"",108],["schule",82],["superheldin",63],["edurinoyuki",56],["neu",50],["leo",34],["1",34],["&",24],["yuka",21],["yukie",18],["asa",14],["gestalte",13],["mit",12],["stift",12],["jukki",5],["superyuki",5],["7",5],["amazon",4]]},"DE-F013":{"asin":"B0DDT9655B","leaderboard":[["barbie",20033587],["playmobil",18449141],["tonie",15702475],["tonies",12723231],["figuren",10487038],["toniebox",10330376],["schleich",10014938],["paw",8549611],["patrol",8549611],["bluey",8174285],["tiptoi",6477922],["h\u00f6rfiguren",4549956],["edurino",3736164],["polly",2859537],["pocket",2859537],["pferde",2804226],["ab",2711796],["stift",2500832],["2",2457621],["tiere",2057194],["spiele",1892450],["spielzeug",1809950],["jahren",1727598],["figur",1702884],["4",1259093],["spiel",1152996],["jahre",965968],["5",788476],["lotti",697469],["karotti",697469],["1",676092],["toni",630150],["asa",622471],["tigerbox",607037],["6",494568],["kekz",489844],["audiochip",489844],["gesellschaftsspiele",340015],["starterset",321243],["kreativ",299677],["disney",223004],["giraffenaffen",182000],["7",166546],["pj",159162],["masks",159162],["zicke",153359],["zacke",153359],["h\u00fchnerkacke",153359],["zoomania",56817],["ari",34174],["enduro",22792],["englisch",18338],["robin",17056],["leo",12332],["gesunde",7416],["ern\u00e4hrung",7416],["3",5372],["natur",4930],["welt",2865],["der",2865]]},"DE-F015":{"asin":"B0FFNHXLBV","leaderboard":[["playmobil",17687108],["tonie",16726507],["tonies",12639644],["figuren",9888102],["toniebox",9412506],["tiptoi",5843173],["ab",5719349],["jahre",5551077],["h\u00f6rfiguren",4466370],["spielzeug",4409986],["edurino",3737483],["2",3328083],["leo",2984605],["paw",1989505],["patrol",1989505],["3",1898928],["spiel",1823405],["spiele",1610137],["5",1578747],["figur",1462950],["kreativ",1396976],["6",1320607],["junge",1028302],["dobble",798888],["quickstop",756190],["starterset",653032],["jahren",649343],["toni",630150],["geschenk",595399],["edubini",588892],["4",484498],["schleich",440221],["dino",440221],["unicorn",380011],["academy",380011],["hubelino",362091],["kugelbahn",362091],["kekz",347500],["kinder",343515],["gesellschaftsspiele",340015],["balanciersteine",338354],["f\u00fcr",338354],["stift",200782],["7",166546],["pj",159162],["masks",159162],["reisespiele",146343],["vtech",133218],["marble",133218],["rush",133218],["was",112092],["und",109074],["lausemaus",107480],["bibi",106264],["tina",106264],["oktonauten",99322],["pumuckl",95957],["lernspiele",91227],["ist",56046],["kind",38695]]},"DE-F004":{"asin":"B0BK9FT32K","leaderboard":[["lego",106643278],["brettspiele",18274911],["tonie",14805264],["kinder",14360794],["ostergeschenke",14063926],["tonies",12389371],["figuren",10248346],["city",8031363],["h\u00f6rfiguren",4549956],["edurino",3600916],["ab",3508441],["jahre",2714981],["4",2274910],["6",1232420],["figur",1165788],["jahren",1079948],["spiele",1078255],["spielzeug",660027],["gesellschaftsspiele",648357],["5",594216],["jungen",500865],["kekz",489844],["audiochip",489844],["geschenk",410179],["junge",410179],["toni",358760],["starterset",325880],["experimente",296868],["f\u00fcr",296868],["kinderspiele",291930],["m\u00e4dchen",180668],["pj",159162],["masks",159162],["lernspiele",118127],["duolingo",110454],["ari",35188],["yuki",29552],["mika",20644],["englisch",20220],["enduro",17494],["minopia",17398],["luca",14331],["ollie",12650],["asa",12102],["stufe",9142],["gesunde",7416],["ern\u00e4hrung",7416],["robin",4820],["luka",4781],["1",4774],["eduino",4732],["eduriono",4259],["edurini",3885],["denken",3218],["logisches",3211],["amazon",2908],["vorschule",2852],["und",2774],["3",2485],["coding",2479]]},"DE-F005":{"asin":"B0C2ZR48CR","leaderboard":[["playmobil",19905332],["tonie",16318173],["kost\u00fcm",14654965],["tonies",12639644],["figuren",10636286],["ab",6479852],["bluey",6447665],["schleich",5920665],["kost\u00fcme",5526994],["tiptoi",5506016],["und",5116190],["bibi",5114126],["tina",5114126],["jahre",4539401],["h\u00f6rfiguren",4466370],["spielzeug",3746193],["edurino",3505871],["m\u00e4dchen",2905578],["kinetic",2672526],["sand",2672526],["4",2642008],["spiele",2634262],["3",2627535],["jahren",2453797],["lego",2099333],["disney",2099333],["paw",1866804],["patrol",1866804],["figur",1485596],["kreativ",1419893],["malen",1157855],["2",868126],["tip",797568],["toi",797568],["5",647650],["geschenk",467816],["brettspiele",379094],["toni",358760],["starterset",324317],["kinderspiele",291930],["haba",180514],["8",163380],["spiel",162532],["pj",159162],["masks",159162],["lernspiele",118127],["6",69273],["junge",67599],["yuki",54634],["juki",42651],["zoomania",35966],["zum",20085],["selbst",20085],["bespielen",20085],["enduro",17424],["ollie",12650],["set",12086],["luca",9739],["efurino",6054],["stift",4602]]},"DE-F007":{"asin":"B0CHK42G63","leaderboard":[["lego",108144458],["playmobil",20462216],["barbie",20033587],["tonie",15487074],["tonies",12687518],["figuren",11280384],["ninjago",10306204],["hot",5135308],["wheels",5135308],["monster",4574698],["high",4574698],["h\u00f6rfiguren",4514244],["edurino",3515274],["baby",3248494],["born",3248494],["ab",3170095],["spielzeug",2839267],["4",2408265],["m\u00e4dchen",2218224],["paw",1866804],["patrol",1866804],["jahre",1524350],["figur",1520830],["toni",1202668],["jahren",1079953],["spiele",1078255],["ari",763765],["krankenhaus",556885],["puzzle",538835],["6",502558],["jungen",500865],["kekz",489844],["audiochip",489844],["junge",471597],["starterset",329684],["kreativ",299677],["kinderspiele",291930],["toniefiguren",208469],["toniefigur",206067],["peppa",151446],["wutz",151446],["was",112092],["2",95902],["5",91511],["lernspiele",91227],["3",74116],["conni",57869],["ist",56046],["enduro",23086],["englisch",18338],["robin",17056],["yuki",16870],["ollie",12650],["gesunde",12221],["ern\u00e4hrung",12221],["asa",12102],["alex",10062],["efurino",6054],["gef\u00fchle",5929],["k\u00f6rperteile",4986]]},"DE-AMZ-05":{"asin":"B0DYK9SBLM","leaderboard":[["lego",98742486],["tonie",16067818],["tonies",12639644],["toniebox",10087612],["figuren",9570790],["tiptoi",9533129],["ab",6267113],["jahre",5930055],["h\u00f6rfiguren",4466370],["4",3826539],["edurino",3781918],["2",3325097],["stift",2848697],["tablet",2835755],["spielzeug",2662305],["kinder",2257068],["paw",1866804],["patrol",1866804],["tip",1466387],["toi",1466387],["geschenk",1332580],["m\u00e4dchen",1332580],["5",1314194],["spiele",1264847],["jahren",1174745],["kreativ",1097298],["buch",1054177],["kindertablet",1046820],["3",1005634],["kids",980799],["figur",947869],["starterset",780778],["6",716586],["1",675107],["kekz",489844],["audiochip",489844],["gesellschaftsspiele",478846],["junge",471597],["lernspiele",439128],["amazon",414944],["toni",358760],["globus",343929],["box",337091],["kinderspiele",291930],["spiel",284814],["duplo",280689],["b\u00fccher",220305],["brettspiele",215714],["minil\u00fck",198188],["montessori",192030],["dobble",122283],["tasche",109472],["vtech",108469],["lerncomputer",108469],["fire",103128],["haba",90102],["zahlen",34329],["lernen",34329],["yuki",21818],["set",19325]]},"DE-F016":{"asin":"B0FFNNMKJT","leaderboard":[["tonie",14633428],["tonies",12305784],["figuren",9282851],["h\u00f6rfiguren",4466370],["edurino",3841906],["ab",1109877],["4",1096235],["jahren",1079948],["spiele",1078255],["figur",633559],["kekz",489844],["audiochip",489844],["starterset",329684],["lernen",275625],["buchstaben",272747],["stift",200782],["mika",97853],["ari",34174],["robin",28635],["enduro",22792],["stufe",22256],["englisch",18338],["ollie",12650],["asa",12102],["jahre",12046],["luca",11863],["2",11543],["6",11181],["gesunde",10518],["ern\u00e4hrung",10518],["alex",10062],["3",7920],["lesen",7514],["uhr",6177],["efurino",6054],["geometrie",5689],["superhelden",5578],["olli",4134],["amazon",4076],["edurini",3885],["schreiben",3439],["1",3339],["und",3290],["abc",2853],["7",2558],["s\u00e4tze",2325],["w\u00f6rter",1961],["deutsch",1842],["mathe",1234],["sprachf\u00f6rderung",884],["zahlenmuster",843],["schule",774],["superheld",665],["super",545],["&",143],["\u201cw\u00f6rter",26],["s\u00e4tze\u201d",26],["hero",11]]},"DE-F002":{"asin":"B09ZY95BRH","leaderboard":[["lego",98145665],["tonie",15071736],["ostergeschenke",14063926],["kinder",14063926],["tonies",12305784],["figuren",9858293],["hot",5135308],["wheels",5135308],["h\u00f6rfiguren",4466370],["edurino",3472755],["robin",1250341],["ab",1144580],["4",1137447],["jahren",1078259],["spiele",1078255],["figur",1014056],["starterset",324317],["kreativ",319762],["toni",271391],["toniebox",242763],["zahlen",112451],["duolingo",110454],["lernen",105202],["sale",60676],["lochkasten",60452],["k\u00f6lner",60452],["lernspielverlag",60452],["conni",57869],["stufe",23829],["zum",20085],["selbst",20085],["bespielen",20085],["ari",18970],["enduro",17620],["yuki",16870],["1",13537],["jahre",11649],["6",9391],["rechnen",8922],["2",7807],["mathe",7291],["mika",7142],["z\u00e4hlen",4254],["edurini",3885],["geometrie",3410],["vorschule",3149],["und",2627],["3",2485],["buchstaben",1594],["zahlenmuster",1534],["mengen",1049],["erstes",914],["erste",690],["edulino",673],["waschb\u00e4r",659],["endrino",340],["bis",307],["10",307],["formen",280],["&",103]]},"DE-F001":{"asin":"B09ZY92SHQ","leaderboard":[["tonie",14822120],["tonies",12305784],["toniebox",9412506],["figuren",9407095],["h\u00f6rfiguren",4466370],["edurino",3528523],["2",2461840],["figur",997484],["5",568912],["jahre",471817],["toni",358760],["lernen",354572],["starterset",318617],["ab",307818],["spielzeug",285232],["jungen",285232],["m\u00e4dchen",280310],["buchstaben",275006],["geschenke",235839],["musik",125571],["f\u00fcr",106485],["mika",97860],["lesen",93357],["vorschule",76074],["und",65541],["bibi",63120],["tina",63120],["j\u00e4hrige",62014],["sami",61464],["leseb\u00e4r",61464],["geschenk",44471],["j\u00e4hriges",44471],["tablet",40742],["stufe",22721],["enduro",17424],["1",16593],["tiptoi",10016],["4",9825],["luca",9739],["6",9391],["ari",7416],["gesunde",7416],["ern\u00e4hrung",7416],["schreiben",6344],["edurini",3962],["abc",3558],["robin",2334],["englisch",2262],["3",1785],["fuchs",1751],["deutsch",1485],["zahlen",1484],["erstes",1470],["edrino",706],["elektronisch",645],["erste",238],["laute",141],["edurono",62],["&",41],["mit",27]]},"DE-F006":{"asin":"B0CB4SVN6P","leaderboard":[["tonie",14633428],["schleich",13609284],["tonies",12589067],["figuren",10181624],["bluey",6447665],["h\u00f6rfiguren",4749652],["edurino",3519879],["eldrador",2894548],["m\u00e4dchen",2403406],["playmobil",2218224],["tiere",1770285],["ab",1571336],["horse",1465445],["club",1465445],["dinosaurier",1367060],["4",1097825],["jahren",1078284],["spiele",1078255],["figur",1010515],["asa",624485],["starterset",326209],["jahre",274718],["6",273785],["toniebox",242763],["1",203107],["jahr",199696],["set",195814],["spielzeug",185182],["yuki",31150],["ari",28089],["enduro",17582],["ern\u00e4hrung",13143],["gesunde",9119],["natur",7367],["stufe",5080],["eduriono",4259],["unsere",2606],["welt",2004],["der",2004],["2",1669],["eisb\u00e4r",1448],["fuchs",1364],["luca",1201],["und",471],["luka",382],["b\u00e4r",328],["edolino",290],["bundle",282],["stift",230],["edurinoasa",57],["3",29],["lernfigur",20],["aua",20],["amazon",12],["deutsch",12],["edu",8],["eno",8]]},"DE-AMZ-01":{"asin":"B0CHJHHM8K","leaderboard":[["tonie",16067818],["tonies",12740562],["lego",10521119],["toniebox",10330376],["figuren",10070960],["ninjago",9998793],["spielzeug",9795651],["tiptoi",8529884],["jahre",7677040],["ab",6766516],["bluey",6447665],["h\u00f6rfiguren",4466370],["edurino",3635238],["6",3253321],["4",3224796],["5",2942929],["stift",2848697],["2",2558336],["spiele",2420382],["geschenk",2200293],["paw",1866804],["patrol",1866804],["m\u00e4dchen",1758831],["jahren",1725905],["junge",1544463],["vtech",1467131],["jungen",1415820],["hot",1324782],["wheels",1324782],["bahn",1324782],["tip",1268269],["toi",1268269],["tablet",1260997],["kinder",1213054],["kreativ",1097298],["kinderspiele",1008422],["figur",946182],["buch",923984],["monopoly",903358],["junior",903358],["xoomy",751071],["starterset",710696],["l\u00fck",676712],["1",675107],["gesellschaftsspiele",648357],["toni",630150],["tigerbox",607037],["3",561382],["geschenke",491063],["lernspiele",463937],["kasten",377658],["box",337091],["f\u00fcr",316200],["mini",299053],["spiel",275642],["j\u00e4hrige",215283],["lerncomputer",209512],["montessori",192030],["zicke",153359],["zacke",153359]]}};
+
+/* ── SQP CONVERSION ─────────────────────────────────────────────────────── */
 var sqpReady = false;
-
 function initSQP() {
-  if (sqpReady) return;
-  sqpReady = true;
-  var list = document.getElementById('sqpList');
-  if (!list) return;
+  if (sqpReady) return; sqpReady = true;
+  var list = document.getElementById('sqpList'); if (!list) return;
   list.innerHTML = Object.keys(SQP_DATA).map(function(sku) {
-    var d = SQP_DATA[sku];
-    var isBrand = sku === 'Brand';
-    return '<div class="sqp-item'+(isBrand?' sqp-brand-item':'')+'" id="si-'+sku+'" onclick="showSQP(\''+sku+'\')">'+
-      '<div class="sqp-sku">'+sku+'</div>'+
-      '<div class="sqp-asin">'+d.asin+'</div>'+
-      '</div>';
+    var d = SQP_DATA[sku], isBrand = sku==='Brand';
+    return '<div class="sqp-item'+(isBrand?' sqp-brand-item':'')+'" id="si-'+sku+'" onclick="showSQP(''+sku+'')">'+
+      '<div class="sqp-sku">'+sku+'</div><div class="sqp-asin">'+d.asin+'</div></div>';
   }).join('');
 }
-
 function showSQP(sku) {
-  document.querySelectorAll('.sqp-item').forEach(function(el){el.classList.remove('active');});
-  var el = document.getElementById('si-'+sku); if(el) el.classList.add('active');
-  var d = SQP_DATA[sku]; if(!d) return;
-  document.getElementById('sqpTitle').textContent = sku + ' \u2014 ' + d.asin;
-  var max = d.leaderboard[0] ? d.leaderboard[0][1] : 1;
-  var rows = d.leaderboard.map(function(item, i) {
-    var w=item[0], v=item[1], pct=Math.round(v/max*100);
-    var hi = w==='edurino';
+  document.querySelectorAll('#sqpList .sqp-item').forEach(function(el){el.classList.remove('active');});
+  var el=document.getElementById('si-'+sku); if(el) el.classList.add('active');
+  var d=SQP_DATA[sku]; if(!d) return;
+  document.getElementById('sqpTitle').textContent = sku+' — '+d.asin;
+  var max=d.leaderboard[0]?d.leaderboard[0][1]:1;
+  var rows=d.leaderboard.map(function(item,i){
+    var w=item[0],v=item[1],pct=Math.round(v/max*100),hi=w==='edurino';
     return '<tr class="sqp-row'+(hi?' edurino-row':'')+'">'+
       '<td class="sqp-rank">'+(i+1)+'</td>'+
       '<td class="sqp-word">'+(hi?'<strong>edurino</strong>':w)+'</td>'+
@@ -713,10 +494,29 @@ function showSQP(sku) {
   }).join('');
   document.getElementById('sqpContent').innerHTML =
     '<div style="overflow-y:auto;max-height:calc(100vh - 160px)">'+
-    '<table class="sqp-table"><thead><tr>'+
-    '<th style="width:44px">#</th><th>Keyword (DE)</th><th>Impression Value</th>'+
-    '<th style="width:72px;text-align:right">Score</th></tr></thead>'+
+    '<table class="sqp-table"><thead><tr><th style="width:44px">#</th><th>Keyword (DE)</th><th>Impression Value</th><th style="width:72px;text-align:right">Score</th></tr></thead>'+
     '<tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ── SQP CTR ────────────────────────────────────────────────────────────── */
+var sqpCtrReady = false;
+function initSQPCtr() {
+  if (sqpCtrReady) return; sqpCtrReady = true;
+  var list = document.getElementById('sqpCtrList'); if (!list) return;
+  list.innerHTML = Object.keys(SQP_DATA).map(function(sku) {
+    var d = SQP_DATA[sku], isBrand = sku==='Brand';
+    return '<div class="sqp-item'+(isBrand?' sqp-brand-item':'')+'" id="sctr-'+sku+'" onclick="showSQPCtr(''+sku+'')">'+
+      '<div class="sqp-sku">'+sku+'</div><div class="sqp-asin">'+d.asin+'</div></div>';
+  }).join('');
+}
+function showSQPCtr(sku) {
+  document.querySelectorAll('#sqpCtrList .sqp-item').forEach(function(el){el.classList.remove('active');});
+  var el=document.getElementById('sctr-'+sku); if(el) el.classList.add('active');
+  document.getElementById('sqpCtrTitle').textContent = sku+' — CTR View';
+  document.getElementById('sqpCtrContent').innerHTML =
+    '<div style="padding:32px;text-align:center;color:var(--text-soft)">'+
+    '<div style="font-size:13px;font-weight:500;color:var(--text-mid)">CTR analysis for '+sku+' — coming soon</div>'+
+    '</div>';
 }
 
 function fmtN(n){
@@ -725,6 +525,8 @@ function fmtN(n){
   return String(n);
 }
 
+/* ── INIT ───────────────────────────────────────────────────────────────── */
+renderTable();
 </script>
 </body>
 </html>
